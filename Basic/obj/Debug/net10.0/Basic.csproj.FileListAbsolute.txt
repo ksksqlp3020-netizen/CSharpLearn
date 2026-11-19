@@ -1,0 +1,17 @@
+C:\DEV_ISB\Gameprogram\CSharpLearn\Basic\obj\Debug\net10.0\Basic.GeneratedMSBuildEditorConfig.editorconfig
+C:\DEV_ISB\Gameprogram\CSharpLearn\Basic\obj\Debug\net10.0\Basic.AssemblyInfoInputs.cache
+C:\DEV_ISB\Gameprogram\CSharpLearn\Basic\obj\Debug\net10.0\Basic.AssemblyInfo.cs
+C:\DEV_ISB\Gameprogram\CSharpLearn\Basic\obj\Debug\net10.0\Basic.csproj.CoreCompileInputs.cache
+C:\DEV_ISB\Gameprogram\CSharpLearn\Basic\obj\Debug\net10.0\Basic.sourcelink.json
+C:\DEV_ISB\Gameprogram\CSharpLearn\Basic\bin\Debug\net10.0\Basic.exe
+C:\DEV_ISB\Gameprogram\CSharpLearn\Basic\bin\Debug\net10.0\Basic.deps.json
+C:\DEV_ISB\Gameprogram\CSharpLearn\Basic\bin\Debug\net10.0\Basic.runtimeconfig.json
+C:\DEV_ISB\Gameprogram\CSharpLearn\Basic\bin\Debug\net10.0\Basic.runtimeconfig.dev.json
+C:\DEV_ISB\Gameprogram\CSharpLearn\Basic\bin\Debug\net10.0\Basic.dll
+C:\DEV_ISB\Gameprogram\CSharpLearn\Basic\bin\Debug\net10.0\Basic.pdb
+C:\DEV_ISB\Gameprogram\CSharpLearn\Basic\obj\Debug\net10.0\Basic.dll
+C:\DEV_ISB\Gameprogram\CSharpLearn\Basic\obj\Debug\net10.0\refint\Basic.dll
+C:\DEV_ISB\Gameprogram\CSharpLearn\Basic\obj\Debug\net10.0\Basic.pdb
+C:\DEV_ISB\Gameprogram\CSharpLearn\Basic\obj\Debug\net10.0\Basic.genruntimeconfig.cache
+C:\DEV_ISB\Gameprogram\CSharpLearn\Basic\obj\Debug\net10.0\ref\Basic.dll
+C:\DEV_ISB\Gameprogram\CSharpLearn\Basic\obj\Debug\net10.0\Basic.csproj.Up2Date
