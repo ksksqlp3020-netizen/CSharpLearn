@@ -8,9 +8,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="메인.cs" />
     <Compile Remove="배열.cs" />
     <Compile Remove="상수와열거형.cs" />
     <Compile Remove="열거를 활용한 게임예제.cs" />
+    <Compile Remove="클래스메인.cs" />
   </ItemGroup>
 
 </Project>
