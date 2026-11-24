@@ -1,0 +1,2986 @@
+<!DOCTYPE html>
+<!-- saved from url=(0082)https://owo-picopulse-r7h.tail491781.ts.net/concepts/csharp/static-and-copy.html#6 -->
+<html lang="ko" data-concept="csharp/static-and-copy" data-level="beginner" class="cp-js" data-theme="dark"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>정적 멤버와 객체 복사 — 게임 개발 개념 라이브러리</title>
+  <meta name="description" content="static 필드와 메서드, 정적 클래스, 얕은 복사와 깊은 복사 — 클래스에 속한 멤버와 복사의 함정">
+  <script>document.documentElement.classList.add('cp-js');try{var t=localStorage.getItem('gcl-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+  <style data-source="concept.css">
+/*
+ * Game Concept Library — concept page runtime styles.
+ * Inlined into every concept page at build time; keep it dependency-free.
+ * Reference: docs/AUTHORING.md
+ */
+
+/* ───────────────────────── Tokens ───────────────────────── */
+:root {
+  color-scheme: dark;
+  --accent: #7ea2f7;
+  --bg: #0d1015;
+  --bg-elev: #151a21;
+  --bg-soft: #1b212a;
+  --bg-sunken: #0a0c10;
+  --line: #2a313c;
+  --line-strong: #3a4350;
+  --fg: #e7eaf0;
+  --fg-muted: #a3adbb;
+  --fg-subtle: #6f7a89;
+  --good: #4ccb8f;
+  --bad: #f27a7a;
+  --warn: #e9c84f;
+  --viz-1: var(--accent);
+  --viz-2: #f5a454;
+  --viz-3: #4ccb8f;
+  --viz-4: #e683d3;
+  --viz-5: #52c2ea;
+  --viz-6: #e9c84f;
+  --accent-ink: var(--accent);
+  --accent-soft: color-mix(in oklab, var(--accent) 16%, transparent);
+  --accent-line: color-mix(in oklab, var(--accent) 45%, transparent);
+  --shadow: 0 10px 30px rgb(0 0 0 / 0.35);
+  --radius: 14px;
+  --radius-sm: 9px;
+  --bar-h: 56px;
+  --nav-h: 64px;
+  --content-w: 1120px;
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "맑은 고딕", "Noto Sans KR", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "D2Coding", "Cascadia Code", Consolas, "SF Mono", Menlo, monospace;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f6f7f9;
+  --bg-elev: #ffffff;
+  --bg-soft: #eef0f4;
+  --bg-sunken: #e7eaef;
+  --line: #dde1e8;
+  --line-strong: #c5ccd6;
+  --fg: #161a21;
+  --fg-muted: #4f5967;
+  --fg-subtle: #7d8796;
+  --good: #1f9a5e;
+  --bad: #d64545;
+  --warn: #b58a00;
+  --viz-2: #d97a1e;
+  --viz-3: #1f9a5e;
+  --viz-4: #b9469f;
+  --viz-5: #1f8fc0;
+  --viz-6: #b58a00;
+  --viz-1: color-mix(in oklab, var(--accent) 78%, #000);
+  --accent-ink: color-mix(in oklab, var(--accent) 62%, #000);
+  --accent-soft: color-mix(in oklab, var(--accent) 18%, transparent);
+  --shadow: 0 10px 30px rgb(20 30 50 / 0.12);
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    color-scheme: light;
+    --bg: #f6f7f9;
+    --bg-elev: #ffffff;
+    --bg-soft: #eef0f4;
+    --bg-sunken: #e7eaef;
+    --line: #dde1e8;
+    --line-strong: #c5ccd6;
+    --fg: #161a21;
+    --fg-muted: #4f5967;
+    --fg-subtle: #7d8796;
+    --good: #1f9a5e;
+    --bad: #d64545;
+    --warn: #b58a00;
+    --viz-2: #d97a1e;
+    --viz-3: #1f9a5e;
+    --viz-4: #b9469f;
+    --viz-5: #1f8fc0;
+    --viz-6: #b58a00;
+    --viz-1: color-mix(in oklab, var(--accent) 78%, #000);
+    --accent-ink: color-mix(in oklab, var(--accent) 62%, #000);
+    --accent-soft: color-mix(in oklab, var(--accent) 18%, transparent);
+    --shadow: 0 10px 30px rgb(20 30 50 / 0.12);
+  }
+}
+
+/* ───────────────────────── Base ───────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-size: 17px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+.cp-js body { overflow: hidden; }
+
+::selection { background: var(--accent-soft); }
+
+a { color: var(--accent-ink); text-underline-offset: 3px; }
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+h1, h2, h3, h4 { line-height: 1.25; margin: 0 0 0.5em; letter-spacing: -0.01em; font-weight: 700; }
+h1 { font-size: clamp(2.2rem, 5vw, 3.6rem); letter-spacing: -0.02em; }
+h2 { font-size: clamp(1.55rem, 3vw, 2.15rem); }
+h3 { font-size: 1.15rem; }
+p { margin: 0 0 0.9em; }
+ul, ol { margin: 0 0 0.9em; padding-left: 1.3em; }
+li + li { margin-top: 0.3em; }
+strong { color: var(--fg); font-weight: 700; }
+em { font-style: normal; color: var(--accent-ink); font-weight: 600; }
+hr { border: 0; border-top: 1px solid var(--line); margin: 1.5em 0; }
+
+code, kbd, .mono { font-family: var(--font-mono); font-size: 0.88em; font-variant-ligatures: none; }
+pre, .formula, .readout, .stat__value { font-variant-ligatures: none; }
+:not(pre) > code {
+  padding: 0.12em 0.4em;
+  border-radius: 6px;
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+}
+
+/* ───────────────────────── Chrome: top bar ───────────────────────── */
+.cp-topbar {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: var(--bar-h);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 clamp(12px, 3vw, 28px);
+  background: color-mix(in oklab, var(--bg) 82%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+  z-index: 20;
+  font-size: 0.9rem;
+}
+
+.cp-crumb { display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1; }
+.cp-crumb__cat { color: var(--accent-ink); font-weight: 600; white-space: nowrap; }
+.cp-crumb__sep { color: var(--fg-subtle); }
+.cp-crumb__title { color: var(--fg); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.cp-lib {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--fg-muted); text-decoration: none; white-space: nowrap;
+  padding: 6px 10px; border-radius: 8px; border: 1px solid var(--line);
+}
+.cp-lib:hover { color: var(--fg); border-color: var(--line-strong); }
+.cp-lib svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.cp-topbar .cp-icon-btn { width: 36px; height: 36px; }
+
+.cp-progress {
+  position: fixed; inset: 0 0 auto 0; height: 3px; z-index: 30;
+  background: transparent;
+}
+.cp-progress__fill {
+  height: 100%; width: 0; background: var(--accent);
+  transition: width 0.35s var(--ease);
+}
+
+/* ───────────────────────── Chrome: bottom nav ───────────────────────── */
+.cp-nav {
+  position: fixed;
+  inset: auto 0 0 0;
+  height: var(--nav-h);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 clamp(10px, 3vw, 28px);
+  background: color-mix(in oklab, var(--bg) 86%, transparent);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--line);
+  z-index: 20;
+}
+.cp-nav__status { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 10px; justify-content: center; }
+.cp-nav__title { color: var(--fg-muted); font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cp-nav__count { font-family: var(--font-mono); font-size: 0.85rem; color: var(--fg-subtle); white-space: nowrap; }
+.cp-nav__group { display: flex; gap: 6px; }
+.cp-steps { display: inline-flex; gap: 4px; align-items: center; align-self: center; }
+.cp-steps:empty { display: none; }
+.cp-steps > span { width: 6px; height: 6px; border-radius: 50%; background: var(--line-strong); transition: background 0.2s; }
+.cp-steps > span.is-on { background: var(--accent); }
+.cp-icon-btn--primary.has-steps { box-shadow: 0 0 0 3px var(--accent-soft); }
+
+.cp-icon-btn {
+  display: inline-grid; place-items: center;
+  width: 40px; height: 40px; padding: 0;
+  border-radius: 10px; border: 1px solid var(--line);
+  background: var(--bg-elev); color: var(--fg);
+  cursor: pointer; transition: background 0.15s, border-color 0.15s, opacity 0.15s;
+}
+.cp-icon-btn:hover:not(:disabled) { border-color: var(--line-strong); background: var(--bg-soft); }
+.cp-icon-btn:disabled { opacity: 0.35; cursor: default; }
+.cp-icon-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.cp-icon-btn--primary { background: var(--accent); border-color: transparent; color: #0b0d12; }
+.cp-icon-btn--primary:hover:not(:disabled) { background: color-mix(in oklab, var(--accent) 85%, #fff); }
+
+/* ───────────────────────── Deck & slides ───────────────────────── */
+/* clip (not just hidden): the waiting next slide sits 28px to the right, and with
+   overflow:hidden a focus or scrollIntoView could still scroll the whole deck sideways. */
+.cp-js .deck { position: fixed; inset: 0; overflow: hidden; overflow: clip; }
+
+.slide {
+  padding: calc(var(--bar-h) + clamp(20px, 4vh, 48px)) clamp(18px, 5vw, 64px) calc(var(--nav-h) + clamp(20px, 4vh, 48px));
+  display: flex;
+  flex-direction: column;
+}
+.slide > * { width: 100%; max-width: var(--content-w); margin-inline: auto; }
+.slide > :first-child { margin-top: auto; }
+.slide > :last-child { margin-bottom: auto; }
+
+.cp-js .slide {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(28px);
+  transition: opacity 0.4s var(--ease), transform 0.4s var(--ease), visibility 0s linear 0.4s;
+}
+.cp-js .slide.is-past { transform: translateX(-28px); }
+.cp-js .slide.is-active {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition: opacity 0.4s var(--ease), transform 0.4s var(--ease), visibility 0s;
+  z-index: 1;
+}
+
+/* Progressive reveal: [data-step="n"] */
+.cp-js .slide [data-step] { transition: opacity 0.35s var(--ease), transform 0.35s var(--ease); }
+.cp-js .slide [data-step]:not(.is-shown) { opacity: 0; transform: translateY(10px); pointer-events: none; }
+.cp-js .slide [data-step].is-current { }
+
+/* Slide typography */
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 0.8rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--accent-ink); margin-bottom: 0.9rem;
+}
+.eyebrow::before { content: ""; width: 18px; height: 2px; background: var(--accent); border-radius: 2px; }
+.lead { font-size: clamp(1.05rem, 1.6vw, 1.22rem); color: var(--fg-muted); max-width: 62ch; }
+.muted { color: var(--fg-muted); }
+.subtle { color: var(--fg-subtle); }
+.small { font-size: 0.88rem; }
+.center { text-align: center; }
+.en { color: var(--fg-subtle); font-weight: 500; }
+
+/* Title slide */
+.slide--title h1 { margin-bottom: 0.2em; }
+.slide--title .subtitle { font-size: clamp(1.1rem, 2vw, 1.5rem); color: var(--fg-subtle); font-weight: 500; margin-bottom: 1.4rem; letter-spacing: 0; }
+.slide--title .lead { margin-bottom: 1.8rem; }
+.title-meta { display: flex; flex-wrap: wrap; gap: 18px 36px; padding-top: 1.4rem; border-top: 1px solid var(--line); }
+.title-meta__item { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.title-meta__label { font-size: 0.76rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--fg-subtle); font-weight: 700; }
+.title-meta__value { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.start-hint { margin-top: 2rem; color: var(--fg-subtle); font-size: 0.9rem; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+/* ───────────────────────── Components ───────────────────────── */
+.cols { display: grid; gap: clamp(18px, 3vw, 36px); grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); align-items: start; }
+.cols > * { min-width: 0; } /* let wide children (code, tables) scroll inside instead of widening the slide */
+.cols--center { align-items: center; }
+.cols--3-2 { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); }
+.cols--2-3 { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); }
+@media (max-width: 860px) { .cols--3-2, .cols--2-3 { grid-template-columns: minmax(0, 1fr); } }
+
+.stack > * + * { margin-top: 14px; }
+
+.card {
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: clamp(16px, 2vw, 22px);
+}
+.card > :last-child { margin-bottom: 0; }
+.card h3 { margin-bottom: 0.4em; }
+.card--accent { border-color: var(--accent-line); background: linear-gradient(180deg, var(--accent-soft), transparent 70%), var(--bg-elev); }
+
+.grid-cards { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); }
+
+.callout {
+  position: relative;
+  padding: 14px 18px 14px 18px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  background: var(--bg-elev);
+}
+.callout > :last-child { margin-bottom: 0; }
+.callout__title { display: block; font-weight: 700; margin-bottom: 4px; font-size: 0.92rem; }
+.callout--key { border-left-color: var(--accent); background: linear-gradient(90deg, var(--accent-soft), transparent 60%), var(--bg-elev); }
+.callout--tip { border-left-color: var(--good); }
+.callout--tip .callout__title { color: var(--good); }
+.callout--warn { border-left-color: var(--warn); }
+.callout--warn .callout__title { color: var(--warn); }
+.callout--bad { border-left-color: var(--bad); }
+.callout--bad .callout__title { color: var(--bad); }
+
+.badge, .tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 10px; border-radius: 999px;
+  font-size: 0.8rem; font-weight: 600; line-height: 1.5;
+  border: 1px solid var(--line); background: var(--bg-soft); color: var(--fg-muted);
+  white-space: nowrap;
+}
+.badge--accent { color: var(--accent-ink); border-color: var(--accent-line); background: var(--accent-soft); }
+.badge--good { color: var(--good); border-color: color-mix(in oklab, var(--good) 40%, transparent); background: color-mix(in oklab, var(--good) 12%, transparent); }
+.badge--bad { color: var(--bad); border-color: color-mix(in oklab, var(--bad) 40%, transparent); background: color-mix(in oklab, var(--bad) 12%, transparent); }
+.badge--warn { color: var(--warn); border-color: color-mix(in oklab, var(--warn) 40%, transparent); background: color-mix(in oklab, var(--warn) 12%, transparent); }
+
+.concept-ref {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 11px; border-radius: 999px; font-size: 0.85rem; font-weight: 600;
+  border: 1px dashed var(--line-strong); color: var(--fg-muted); text-decoration: none;
+}
+a.concept-ref { border-style: solid; border-color: var(--accent-line); color: var(--accent-ink); background: var(--accent-soft); }
+a.concept-ref::after { content: "→"; font-weight: 400; }
+a.concept-ref:hover { background: color-mix(in oklab, var(--accent) 26%, transparent); }
+a.concept-ref.is-planned { border-style: dashed; border-color: var(--line-strong); color: var(--fg-muted); background: transparent; }
+a.concept-ref.is-planned:hover { color: var(--fg); background: var(--bg-soft); }
+
+kbd, .kbd {
+  display: inline-block; min-width: 1.7em; padding: 0.1em 0.45em; text-align: center;
+  border-radius: 6px; border: 1px solid var(--line-strong); border-bottom-width: 2px;
+  background: var(--bg-elev); color: var(--fg); font-size: 0.8em; line-height: 1.5;
+}
+
+.formula {
+  display: block; text-align: center;
+  font-family: var(--font-mono); font-size: clamp(1rem, 1.8vw, 1.25rem);
+  padding: 16px 18px; margin: 0 0 1em; border-radius: var(--radius-sm);
+  background: var(--bg-sunken); border: 1px solid var(--line); color: var(--fg);
+  overflow-x: auto; white-space: nowrap;
+}
+.formula .var { color: var(--accent-ink); }
+.formula .op { color: var(--fg-subtle); }
+
+.def-list { display: grid; grid-template-columns: max-content 1fr; gap: 8px 18px; margin: 0 0 1em; }
+.def-list dt { font-weight: 700; color: var(--accent-ink); }
+.def-list dd { margin: 0; color: var(--fg-muted); }
+
+.steps { list-style: none; padding: 0; counter-reset: step; }
+.steps > li { counter-increment: step; position: relative; padding-left: 2.6em; min-height: 1.8em; }
+.steps > li + li { margin-top: 0.8em; }
+.steps > li::before {
+  content: counter(step); position: absolute; left: 0; top: 0.05em;
+  width: 1.8em; height: 1.8em; display: grid; place-items: center;
+  border-radius: 50%; background: var(--accent-soft); color: var(--accent-ink);
+  font-weight: 700; font-size: 0.85em; border: 1px solid var(--accent-line);
+}
+
+.checklist { list-style: none; padding: 0; }
+.checklist > li { position: relative; padding-left: 1.8em; }
+.checklist > li::before { content: "✓"; position: absolute; left: 0.2em; color: var(--good); font-weight: 700; }
+
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius-sm); margin-bottom: 1em; }
+table { width: 100%; border-collapse: collapse; font-size: 0.93rem; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { background: var(--bg-soft); color: var(--fg-muted); font-weight: 700; font-size: 0.82rem; letter-spacing: 0.02em; }
+tr:last-child td { border-bottom: 0; }
+
+/* Figures & canvases */
+.figure {
+  position: relative;
+  margin: 0;
+  background: var(--bg-sunken);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.figure canvas, .figure svg.viz { display: block; width: 100%; height: auto; max-height: min(62vh, 560px); touch-action: manipulation; }
+canvas { -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+.figure canvas.is-draggable { touch-action: none; }
+.figure figcaption, .figure .caption {
+  padding: 10px 14px; font-size: 0.85rem; color: var(--fg-muted);
+  border-top: 1px solid var(--line); background: var(--bg-elev);
+}
+.figure__overlay {
+  position: absolute; top: 10px; left: 10px; right: 10px;
+  display: flex; flex-wrap: wrap; gap: 6px; pointer-events: none;
+}
+.figure__overlay > * { pointer-events: auto; }
+.hint { font-size: 0.82rem; color: var(--fg-subtle); }
+
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 0.85rem; color: var(--fg-muted); }
+.legend__item { display: inline-flex; align-items: center; gap: 7px; }
+.legend__swatch { width: 12px; height: 12px; border-radius: 3px; background: var(--c, var(--accent)); flex: none; }
+
+.readout {
+  font-family: var(--font-mono); font-size: 0.86rem;
+  background: var(--bg-sunken); border: 1px solid var(--line); border-radius: var(--radius-sm);
+  padding: 10px 14px; color: var(--fg-muted); white-space: pre-wrap; line-height: 1.6;
+}
+.readout b { color: var(--fg); font-weight: 600; }
+
+.stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; }
+.stat { background: var(--bg-elev); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 10px 14px; }
+.stat__label { font-size: 0.75rem; color: var(--fg-subtle); font-weight: 700; letter-spacing: 0.04em; }
+.stat__value { font-family: var(--font-mono); font-size: 1.25rem; color: var(--fg); font-variant-numeric: tabular-nums; }
+
+/* ───────────────────────── Controls ───────────────────────── */
+.controls {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px;
+  padding: 12px 14px; margin-top: 12px;
+  background: var(--bg-elev); border: 1px solid var(--line); border-radius: var(--radius-sm);
+}
+.controls--stack { flex-direction: column; align-items: stretch; }
+
+.ctl { display: flex; align-items: center; gap: 10px; font-size: 0.88rem; color: var(--fg-muted); min-width: 0; }
+.ctl > span:first-child { white-space: nowrap; }
+.ctl output { font-family: var(--font-mono); color: var(--fg); min-width: 3.5em; font-variant-numeric: tabular-nums; font-size: 0.85rem; }
+.controls--stack .ctl { justify-content: space-between; }
+.controls--stack .ctl input[type="range"] { flex: 1; }
+
+input[type="range"] {
+  -webkit-appearance: none; appearance: none;
+  width: 150px; max-width: 100%; height: 22px; background: transparent; cursor: pointer; margin: 0;
+}
+input[type="range"]::-webkit-slider-runnable-track { height: 4px; border-radius: 4px; background: var(--line-strong); }
+input[type="range"]::-moz-range-track { height: 4px; border-radius: 4px; background: var(--line-strong); }
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 16px; height: 16px; margin-top: -6px; border-radius: 50%;
+  background: var(--accent); border: 2px solid var(--bg-elev); box-shadow: 0 0 0 1px var(--accent);
+}
+input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg-elev); }
+input[type="range"]:focus-visible { outline: none; }
+input[type="range"]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px var(--accent-soft), 0 0 0 1px var(--accent); }
+
+input[type="checkbox"] { accent-color: var(--accent); width: 16px; height: 16px; margin: 0; }
+label.check { display: inline-flex; align-items: center; gap: 8px; font-size: 0.88rem; color: var(--fg-muted); cursor: pointer; user-select: none; }
+
+select {
+  font: inherit; font-size: 0.88rem; color: var(--fg); background: var(--bg-soft);
+  border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px;
+}
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  font: inherit; font-size: 0.88rem; font-weight: 600;
+  padding: 8px 14px; border-radius: 9px; cursor: pointer;
+  border: 1px solid var(--line); background: var(--bg-soft); color: var(--fg);
+  transition: background 0.15s, border-color 0.15s, transform 0.05s;
+  white-space: nowrap;
+}
+.btn:hover:not(:disabled) { border-color: var(--line-strong); background: color-mix(in oklab, var(--bg-soft) 70%, var(--fg) 6%); }
+.btn:active:not(:disabled) { transform: translateY(1px); }
+.btn:disabled { opacity: 0.45; cursor: default; }
+.btn--primary { background: var(--accent); border-color: transparent; color: #0b0d12; }
+.btn--primary:hover:not(:disabled) { background: color-mix(in oklab, var(--accent) 85%, #fff); }
+.btn--ghost { background: transparent; }
+.btn--sm { padding: 5px 10px; font-size: 0.8rem; }
+
+.seg { display: inline-flex; padding: 3px; gap: 2px; border-radius: 10px; background: var(--bg-soft); border: 1px solid var(--line); flex-wrap: wrap; }
+.seg label { position: relative; cursor: pointer; }
+.seg input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.seg span { display: block; padding: 5px 12px; border-radius: 7px; font-size: 0.84rem; font-weight: 600; color: var(--fg-muted); transition: background 0.15s, color 0.15s; }
+.seg input:checked + span { background: var(--bg-elev); color: var(--fg); box-shadow: 0 1px 0 var(--line-strong), 0 0 0 1px var(--line); }
+.seg input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* ───────────────────────── Code ───────────────────────── */
+pre.code {
+  position: relative;
+  margin: 0 0 1em;
+  padding: 16px 0;
+  border-radius: var(--radius-sm);
+  background: var(--bg-sunken);
+  border: 1px solid var(--line);
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: clamp(0.78rem, 1.1vw, 0.88rem);
+  line-height: 1.7;
+  tab-size: 4;
+}
+pre.code code { display: block; min-width: max-content; font-size: inherit; }
+pre.code .line { display: block; padding: 0 18px 0 14px; border-left: 3px solid transparent; transition: background 0.2s, border-color 0.2s, opacity 0.2s; }
+pre.code.has-active .line { opacity: 0.5; }
+pre.code .line.is-active { background: var(--accent-soft); border-left-color: var(--accent); opacity: 1; }
+pre.code[data-lang]::after {
+  content: attr(data-lang); position: absolute; top: 8px; right: 12px;
+  font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--fg-subtle);
+}
+pre.code[data-label]::after { content: attr(data-label); text-transform: none; }
+pre.code[data-label=""]::after { content: none; }
+.tok-k { color: #c792ea; }
+.tok-t { color: #82aaff; }
+.tok-f { color: #7fd6c2; }
+.tok-n { color: #f78c6c; }
+.tok-s { color: #c3e88d; }
+.tok-c { color: var(--fg-subtle); font-style: italic; }
+.tok-p { color: var(--fg-muted); }
+:root[data-theme="light"] .tok-k { color: #8839b8; }
+:root[data-theme="light"] .tok-t { color: #2f5fd0; }
+:root[data-theme="light"] .tok-f { color: #0f7a68; }
+:root[data-theme="light"] .tok-n { color: #c0521f; }
+:root[data-theme="light"] .tok-s { color: #4c7a12; }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) .tok-k { color: #8839b8; }
+  :root:not([data-theme]) .tok-t { color: #2f5fd0; }
+  :root:not([data-theme]) .tok-f { color: #0f7a68; }
+  :root:not([data-theme]) .tok-n { color: #c0521f; }
+  :root:not([data-theme]) .tok-s { color: #4c7a12; }
+}
+
+/* ───────────────────────── Quiz ───────────────────────── */
+.quiz { background: var(--bg-elev); border: 1px solid var(--line); border-radius: var(--radius); padding: clamp(16px, 2vw, 22px); }
+.quiz + .quiz { margin-top: 16px; }
+.quiz__q { font-weight: 700; font-size: 1.05rem; margin-bottom: 12px; }
+.quiz__choices { display: grid; gap: 8px; }
+.quiz__choice {
+  display: flex; align-items: flex-start; gap: 12px; width: 100%; text-align: left;
+  font: inherit; font-size: 0.95rem; color: var(--fg);
+  padding: 10px 14px; border-radius: 10px; cursor: pointer;
+  border: 1px solid var(--line); background: var(--bg-soft);
+  transition: border-color 0.15s, background 0.15s;
+}
+.quiz__choice::before {
+  content: attr(data-choice); flex: none; text-transform: uppercase;
+  width: 1.6em; height: 1.6em; display: grid; place-items: center; margin-top: 0.05em;
+  border-radius: 6px; font-size: 0.8em; font-weight: 700; font-family: var(--font-mono);
+  border: 1px solid var(--line-strong); color: var(--fg-muted);
+}
+.quiz__choice:hover:not(:disabled) { border-color: var(--line-strong); }
+.quiz__choice.is-wrong { border-color: color-mix(in oklab, var(--bad) 60%, transparent); background: color-mix(in oklab, var(--bad) 10%, var(--bg-soft)); }
+.quiz__choice.is-wrong::before { content: "✕"; color: var(--bad); border-color: var(--bad); }
+.quiz__choice.is-correct { border-color: color-mix(in oklab, var(--good) 60%, transparent); background: color-mix(in oklab, var(--good) 12%, var(--bg-soft)); }
+.quiz__choice.is-correct::before { content: "✓"; color: var(--good); border-color: var(--good); }
+.quiz__choice:disabled { cursor: default; }
+.quiz.is-solved .quiz__choice:not(.is-correct) { opacity: 0.55; }
+.quiz__feedback { min-height: 1.5em; margin: 10px 0 0; font-size: 0.9rem; font-weight: 600; }
+.quiz__feedback:empty { min-height: 0; margin: 0; }
+.quiz__feedback.is-wrong { color: var(--bad); }
+.quiz__feedback.is-correct { color: var(--good); }
+.quiz__explain { display: none; margin-top: 8px; padding-top: 10px; border-top: 1px solid var(--line); color: var(--fg-muted); font-size: 0.92rem; }
+.quiz.is-solved .quiz__explain { display: block; }
+.quiz__explain > :last-child { margin-bottom: 0; }
+
+/* ───────────────────────── Hands-on: IDE frame & cloze ───────────────────────── */
+/* .ide — "type this into Program.cs" panel: file tab, code, console output */
+.ide { margin: 0 0 1em; border: 1px solid var(--line); border-radius: var(--radius-sm); overflow: hidden; background: var(--bg-sunken); }
+.ide__bar { display: flex; align-items: stretch; gap: 10px; background: var(--bg-elev); border-bottom: 1px solid var(--line); font-size: 0.78rem; color: var(--fg-muted); }
+.ide__file { padding: 6px 14px; font-family: var(--font-mono); color: var(--fg); background: var(--bg-sunken); border-right: 1px solid var(--line); box-shadow: inset 0 2px 0 var(--accent); margin-bottom: -1px; }
+.ide__run { margin-left: auto; padding: 6px 12px; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.ide pre.code { margin: 0; border: 0; border-radius: 0; }
+/* whole-file listings: a little denser so a 25-line Program.cs fits on one slide */
+.ide pre.code, .cloze pre.code { font-size: clamp(0.74rem, 1vw, 0.84rem); line-height: 1.55; }
+.ide pre.code.ide__out { padding-top: 26px; background: var(--bg-soft); border-top: 1px dashed var(--line-strong); }
+.ide pre.code.ide__out::after { content: "출력"; left: 14px; right: auto; top: 6px; }
+.ide > figcaption { padding: 8px 14px; font-size: 0.85rem; color: var(--fg-muted); border-top: 1px solid var(--line); background: var(--bg-elev); }
+
+/* .cloze — fill-in-the-blank code: ⟦answer⟧ markers become inputs (runtime) */
+.cloze__blank {
+  font: inherit; color: var(--fg); background: var(--bg-elev);
+  border: 1px dashed var(--accent-line); border-radius: 5px;
+  padding: 0 4px; margin: 0 1px; height: 1.45em; vertical-align: baseline;
+  transition: border-color 0.15s, background 0.15s;
+}
+.cloze__blank:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-style: solid; }
+.cloze__blank.is-correct { border: 1px solid var(--good); background: color-mix(in oklab, var(--good) 14%, var(--bg-elev)); }
+.cloze__blank.is-wrong { border: 1px solid var(--bad); background: color-mix(in oklab, var(--bad) 12%, var(--bg-elev)); text-decoration: underline wavy var(--bad); text-underline-offset: 3px; }
+.cloze__blank.is-revealed { border: 1px solid var(--warn); background: color-mix(in oklab, var(--warn) 14%, var(--bg-elev)); }
+.cloze__bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; }
+.cloze__result { font-size: 0.88rem; font-weight: 600; color: var(--fg-muted); }
+.cloze__result.is-correct { color: var(--good); }
+.cloze__result.is-wrong { color: var(--bad); }
+.cloze.is-solved pre.code { border-color: color-mix(in oklab, var(--good) 55%, transparent); }
+
+/* ───────────────────────── Summary slide ───────────────────────── */
+.next-list { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* ───────────────────────── TOC dialog ───────────────────────── */
+.cp-toc {
+  width: min(460px, calc(100vw - 32px));
+  max-height: min(78vh, 720px);
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg-elev);
+  color: var(--fg);
+  box-shadow: var(--shadow);
+}
+.cp-toc::backdrop { background: rgb(0 0 0 / 0.45); backdrop-filter: blur(2px); }
+.cp-toc__head { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 10px 20px; border-bottom: 1px solid var(--line); }
+.cp-toc__head h2 { font-size: 1rem; margin: 0; }
+.cp-toc__list { list-style: none; margin: 0; padding: 8px; overflow-y: auto; max-height: calc(min(78vh, 720px) - 60px); counter-reset: toc; }
+.cp-toc__list li { margin: 0; counter-increment: toc; }
+.cp-toc__list button {
+  width: 100%; display: flex; gap: 12px; align-items: baseline; text-align: left;
+  font: inherit; font-size: 0.93rem; color: var(--fg-muted);
+  padding: 9px 12px; border: 0; border-radius: 8px; background: transparent; cursor: pointer;
+}
+.cp-toc__list button::before { content: counter(toc, decimal-leading-zero); font-family: var(--font-mono); font-size: 0.78rem; color: var(--fg-subtle); }
+.cp-toc__list button:hover { background: var(--bg-soft); color: var(--fg); }
+.cp-toc__list button[aria-current="step"] { background: var(--accent-soft); color: var(--fg); font-weight: 600; }
+.cp-toc__list button[aria-current="step"]::before { color: var(--accent-ink); }
+
+.cp-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* ───────────────────────── Responsive ───────────────────────── */
+@media (max-width: 640px) {
+  :root { --bar-h: 50px; --nav-h: 58px; }
+  body { font-size: 16px; }
+  .cp-nav__title { display: none; }
+  .cp-icon-btn { width: 38px; height: 38px; }
+  .cp-crumb__cat, .cp-crumb__sep { display: none; }
+  .def-list { grid-template-columns: 1fr; gap: 2px; }
+  .def-list dd { margin-bottom: 8px; }
+  input[type="range"] { width: 120px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cp-js .slide, .cp-js .slide.is-active, .cp-js .slide [data-step], .cp-progress__fill { transition: none !important; }
+  .cp-js .slide, .cp-js .slide.is-past { transform: none; }
+}
+
+/* ───────────────────────── Print: every slide, stacked ───────────────────────── */
+@media print {
+  .cp-topbar, .cp-nav, .cp-progress, .cp-toc { display: none !important; }
+  .cp-js body { overflow: visible; }
+  .cp-js .deck { position: static; }
+  .cp-js .slide, .slide {
+    position: static !important; opacity: 1 !important; visibility: visible !important; transform: none !important;
+    overflow: visible; padding: 24px 0; break-after: page;
+  }
+  .cp-js .slide [data-step] { opacity: 1 !important; transform: none !important; }
+  .quiz__explain { display: block; }
+}
+
+</style>
+  <style>
+    :root { --accent: #b48cff; }
+    .cap-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .cap-row + .cap-row, .cap-row + .hint { margin-top: 8px; }
+    .code-tight { font-size: clamp(0.72rem, 1vw, 0.82rem); }
+    .memo pre.code { margin-bottom: 0; }
+    .sim-result { margin-top: 12px; padding: 12px 14px; min-height: 7.5em; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--bg-elev); }
+    .sim-result.is-ok { border-color: color-mix(in oklab, var(--good) 50%, transparent); }
+    .sim-result.is-err { border-color: color-mix(in oklab, var(--bad) 55%, transparent); }
+    .sim-result__head { margin: 0 0 6px; font-weight: 700; font-size: 0.92rem; }
+    .sim-result.is-ok .sim-result__head { color: var(--good); }
+    .sim-result.is-err .sim-result__head { color: var(--bad); }
+    .sim-result__body { margin: 0; font-family: var(--font-mono); font-size: 0.86rem; white-space: pre-wrap; color: var(--fg); }
+    .sim-result__note { margin: 8px 0 0; font-size: 0.86rem; color: var(--fg-muted); }
+    .sim-row { display: grid; gap: 8px; }
+    .sim-row > .small { margin: 0; }
+    .pit[hidden] { display: none !important; }
+    .err-code { font-family: var(--font-mono); font-weight: 700; }
+    .copy-kinds { display: grid; gap: 8px; }
+    .copy-kinds .callout { margin: 0; }
+  </style>
+<script type="application/json" id="cp-library">{"href":"../../index.html","concepts":{"csharp/variables-and-types":"variables-and-types.html","csharp/type-conversion":"type-conversion.html","csharp/constants-and-enums":"constants-and-enums.html","csharp/strings":"strings.html","csharp/operators":"operators.html","csharp/null-handling":"null-handling.html","csharp/conditionals":"conditionals.html","csharp/loops":"loops.html","csharp/method-basics":"method-basics.html","csharp/ref-out-parameters":"ref-out-parameters.html","csharp/class-basics":"class-basics.html","csharp/static-and-copy":"static-and-copy.html","csharp/method-arguments":"method-arguments.html","csharp/access-modifiers":"access-modifiers.html","csharp/syntax-basics":"syntax-basics.html","csharp/functions":"functions.html","csharp/value-vs-reference":"value-vs-reference.html","csharp/oop":"oop.html","csharp/solid-principles":"solid-principles.html","production/version-control":"../production/version-control.html","production/self-pull-request":"../production/self-pull-request.html"},"scheduled":{},"strict":true}</script>
+</head>
+<body><div class="cp-progress" aria-hidden="true"><div class="cp-progress__fill" style="width: 56.9444%;"></div></div><header class="cp-topbar"><a class="cp-lib" href="https://owo-picopulse-r7h.tail491781.ts.net/index.html"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 18l-6-6 6-6"></path></svg><span>라이브러리</span></a><div class="cp-crumb"><span class="cp-crumb__cat">C# 언어</span><span class="cp-crumb__sep" aria-hidden="true">/</span><span class="cp-crumb__title">정적 멤버와 객체 복사</span></div><button class="cp-icon-btn cp-theme" type="button" aria-label="밝은 테마로 전환" title="밝은 테마로 전환"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg></button></header>
+  <main class="deck" data-title="정적 멤버와 객체 복사" data-category="C# 언어">
+
+    <!-- 1. 표지 -->
+    <section class="slide slide--title is-past" data-title="정적 멤버와 객체 복사" role="group" aria-roledescription="슬라이드" aria-label="1 / 12: 정적 멤버와 객체 복사" tabindex="-1" aria-hidden="true" inert="">
+      <div>
+        <p class="eyebrow">C# 문법 · 클래스</p>
+        <h1>정적 멤버와 객체 복사</h1>
+        <p class="subtitle">Static Members &amp; Object Copying</p>
+        <p class="lead">“지금까지 만든 적은 몇 마리?”처럼 객체 하나가 아니라 <strong>클래스 전체</strong>에 속한 값은 <code>static</code>으로 둡니다. 그리고 적을 복제할 때 원본까지 같이 바뀌는 버그를 직접 만들어 보고, 얕은 복사와 깊은 복사로 고칩니다.</p>
+        <div class="title-meta">
+          <div class="title-meta__item">
+            <span class="title-meta__label">난이도</span>
+            <span class="title-meta__value"><span class="badge badge--accent">입문</span></span>
+          </div>
+          <div class="title-meta__item">
+            <span class="title-meta__label">선수 개념</span>
+            <span class="title-meta__value">
+              <a class="concept-ref" data-concept-ref="csharp/class-basics" href="https://owo-picopulse-r7h.tail491781.ts.net/concepts/csharp/class-basics.html">클래스와 객체</a>
+            </span>
+          </div>
+          <div class="title-meta__item">
+            <span class="title-meta__label">배우는 것</span>
+            <span class="title-meta__value"><span class="tag">static 필드</span><span class="tag">static 메서드</span><span class="tag">정적 클래스</span><span class="tag">참조 복사</span><span class="tag">얕은 복사</span><span class="tag">깊은 복사</span></span>
+          </div>
+          <div class="title-meta__item">
+            <span class="title-meta__label">실습 환경</span>
+            <span class="title-meta__value"><span class="tag">Visual Studio 콘솔 앱</span><span class="tag">최상위 문</span></span>
+          </div>
+        </div>
+        <p class="start-hint"><kbd>→</kbd> 키나 아래 버튼으로 넘겨 보세요 · <kbd>T</kbd> 목차</p>
+      </div>
+    </section>
+
+    <!-- 2. 문제 -->
+    <section class="slide is-past" data-title="객체마다 따로인 것과 함께인 것" role="group" aria-roledescription="슬라이드" aria-label="2 / 12: 객체마다 따로인 것과 함께인 것" tabindex="-1" aria-hidden="true" inert="">
+      <div>
+        <p class="eyebrow">문제</p>
+        <h2>객체마다 따로? 모두 함께?</h2>
+        <p class="lead">7-1에서 배운 필드는 <strong>객체마다 한 벌씩</strong> 생깁니다. 그런데 게임에는 두 가지 곤란한 장면이 있습니다.</p>
+        <div class="cols">
+          <div class="card">
+            <h3>① 지금까지 만든 적은 몇 마리?</h3>
+            <pre class="code code-tight" data-lang="csharp" data-highlight="3|5" data-cp-highlighted="true" data-label="C#" tabindex="0"><code><span class="line" data-line="1"><span class="tok-k">class</span> <span class="tok-t">Enemy</span></span><span class="line" data-line="2">{</span><span class="line" data-line="3">    <span class="tok-k">public</span> <span class="tok-t">int</span> <span class="tok-t">Count</span>;    <span class="tok-c">// 객체마다 따로 생긴다</span></span><span class="line" data-line="4"> </span><span class="line" data-line="5">    <span class="tok-k">public</span> <span class="tok-f">Enemy</span>() { <span class="tok-t">Count</span>++; }</span><span class="line" data-line="6">}</span></code></pre>
+            <p class="small is-shown" data-step="2"><code>new Enemy()</code>를 세 번 해도 객체마다 자기 <code>Count</code>를 0 → 1로 올릴 뿐입니다. <strong>“전체”를 담을 곳이 없습니다.</strong></p>
+          </div>
+          <div class="card">
+            <h3>② 보스를 하나 더 복제하고 싶다</h3>
+            <pre class="code code-tight has-active" data-lang="csharp" data-highlight="||1|2" data-cp-highlighted="true" data-label="C#" tabindex="0"><code><span class="line" data-line="1"><span class="tok-t">Enemy</span> boss2 = boss;   <span class="tok-c">// 복제했다?</span></span><span class="line is-active" data-line="2">boss2.<span class="tok-t">Hp</span> -= <span class="tok-n">100</span>;      <span class="tok-c">// boss의 Hp도 줄었다!</span></span></code></pre>
+            <p class="small is-shown is-current" data-step="4">대입은 객체를 복사하지 않습니다. <code>boss</code>와 <code>boss2</code>는 <strong>같은 객체</strong>를 가리킵니다.</p>
+          </div>
+        </div>
+        <p class="small muted" style="margin-top:12px">①은 <code>static</code>으로, ②는 <strong>얕은 복사·깊은 복사</strong>로 해결합니다.</p>
+      </div>
+    </section>
+
+    <!-- 3. static 필드 -->
+    <section class="slide is-past" data-title="static 필드: 클래스에 하나" role="group" aria-roledescription="슬라이드" aria-label="3 / 12: static 필드: 클래스에 하나" tabindex="-1" aria-hidden="true" inert="">
+      <div class="cols cols--3-2">
+        <div class="stack">
+          <figure class="figure">
+            <canvas id="count" width="648" height="344" aria-label="왼쪽 Enemy 클래스 상자와 오른쪽 객체 카드들. static이면 Count 칸이 클래스 상자에 하나만 있고 모든 객체가 그 칸을 함께 올린다. 인스턴스 필드면 객체마다 Count가 1인 채로 따로 있다" style="width: 100%; height: auto; display: block; aspect-ratio: 640 / 340;"></canvas>
+            <figcaption>
+              <span class="cap-row">
+                <span class="seg" role="radiogroup" aria-label="Count 필드 선언">
+                  <label><input type="radio" name="count-mode" value="static" checked=""><span>public static int Count</span></label>
+                  <label><input type="radio" name="count-mode" value="instance"><span>public int Count</span></label>
+                </span>
+              </span>
+              <span class="cap-row">
+                <button class="btn btn--sm btn--primary" id="count-new" type="button">new Enemy(…)</button>
+                <button class="btn btn--sm btn--ghost" id="count-reset" type="button">처음으로</button>
+              </span>
+              <span class="hint">적을 서너 마리 만든 뒤 선언을 바꿔 보세요. Count가 사는 곳(클래스 상자 / 객체 카드)이 달라집니다.</span>
+            </figcaption>
+          </figure>
+          <pre class="readout" id="count-log" aria-live="polite">Console.WriteLine(orc.Count);
+&gt; 1   // 객체마다 자기 Count를 0에서 1로 올렸을 뿐</pre>
+        </div>
+        <div>
+          <p class="eyebrow">static 필드</p>
+          <h2>static 필드는 클래스에 하나</h2>
+          <p><code>static</code>을 붙인 필드는 객체가 아니라 <strong>클래스에 딱 하나</strong> 생깁니다. 객체를 몇 개 만들든 모두 같은 칸을 씁니다. 이런 멤버를 <strong>정적 멤버(static member)</strong>, 객체마다 생기는 멤버를 <strong>인스턴스 멤버(instance member)</strong>라고 부릅니다.</p>
+          <pre class="code code-tight has-active" data-lang="csharp" data-highlight="3|9|12" data-cp-highlighted="true" data-label="C#" tabindex="0"><code><span class="line" data-line="1"><span class="tok-k">class</span> <span class="tok-t">Enemy</span></span><span class="line" data-line="2">{</span><span class="line" data-line="3">    <span class="tok-k">public</span> <span class="tok-k">static</span> <span class="tok-t">int</span> <span class="tok-t">Count</span>;   <span class="tok-c">// 클래스에 하나</span></span><span class="line" data-line="4">    <span class="tok-k">public</span> <span class="tok-t">string</span> <span class="tok-t">Name</span>;        <span class="tok-c">// 객체마다 하나</span></span><span class="line" data-line="5"> </span><span class="line" data-line="6">    <span class="tok-k">public</span> <span class="tok-f">Enemy</span>(<span class="tok-t">string</span> name)</span><span class="line" data-line="7">    {</span><span class="line" data-line="8">        <span class="tok-t">Name</span> = name;</span><span class="line" data-line="9">        <span class="tok-t">Count</span>++;               <span class="tok-c">// 모두 같은 Count</span></span><span class="line" data-line="10">    }</span><span class="line" data-line="11">}</span><span class="line is-active" data-line="12"><span class="tok-c">// 밖에서는 클래스 이름으로: Enemy.Count</span></span></code></pre>
+          <p class="small muted">클래스 안에서는 <code>Count</code>, 밖에서는 <code>Enemy.Count</code>처럼 <strong>클래스 이름</strong>으로 씁니다. 객체를 하나도 만들지 않아도 이미 있습니다(기본값 0).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. static 메서드 -->
+    <section class="slide is-past" data-title="static 메서드와 this" role="group" aria-roledescription="슬라이드" aria-label="4 / 12: static 메서드와 this" tabindex="-1" aria-hidden="true" inert="">
+      <div>
+        <p class="eyebrow">static 메서드</p>
+        <h2>static 메서드에는 “이 객체”가 없다</h2>
+        <p><code>static</code> 메서드는 객체 없이 <code>Enemy.PrintCount()</code>처럼 클래스 이름으로 부릅니다. 그래서 안에서는 <code>this</code>가 없고, “어느 적의” <code>Hp</code>인지 알 수 없습니다.</p>
+        <div class="cols cols--3-2">
+          <div class="stack">
+            <pre class="code code-tight" data-lang="csharp" data-cp-highlighted="true" data-label="C#" tabindex="0"><code><span class="line" data-line="1"><span class="tok-t">Enemy</span> goblin = <span class="tok-k">new</span> <span class="tok-f">Enemy</span>(<span class="tok-s">"고블린"</span>);</span><span class="line" data-line="2"> </span><span class="line" data-line="3"><span class="tok-k">class</span> <span class="tok-t">Enemy</span></span><span class="line" data-line="4">{</span><span class="line" data-line="5">    <span class="tok-k">public</span> <span class="tok-k">static</span> <span class="tok-t">int</span> <span class="tok-t">Count</span>;</span><span class="line" data-line="6">    <span class="tok-k">public</span> <span class="tok-t">int</span> <span class="tok-t">Hp</span> = <span class="tok-n">30</span>;</span><span class="line" data-line="7">    <span class="tok-c">// ... 생성자</span></span><span class="line" data-line="8"> </span><span class="line" data-line="9">    <span class="tok-k">public</span> <span class="tok-t">void</span> <span class="tok-f">TakeDamage</span>(<span class="tok-t">int</span> amount) { <span class="tok-t">Hp</span> -= amount; }</span><span class="line" data-line="10"> </span><span class="line" data-line="11">    <span class="tok-k">public</span> <span class="tok-k">static</span> <span class="tok-t">void</span> <span class="tok-f">PrintCount</span>()</span><span class="line" data-line="12">    {</span><span class="line" data-line="13">        <span class="tok-t">Console</span>.<span class="tok-f">WriteLine</span>(<span class="tok-s">$"적 {Count}마리"</span>);</span><span class="line" data-line="14">    }</span><span class="line" data-line="15">}</span></code></pre>
+          </div>
+          <div class="sim-row">
+            <p class="small"><strong>어디서</strong> 쓰나요?</p>
+            <span class="seg" role="radiogroup" aria-label="코드를 쓰는 위치">
+              <label><input type="radio" name="sm-where" value="inst" checked=""><span>TakeDamage 안</span></label>
+              <label><input type="radio" name="sm-where" value="static"><span>PrintCount 안</span></label>
+              <label><input type="radio" name="sm-where" value="type"><span>밖: Enemy.</span></label>
+              <label><input type="radio" name="sm-where" value="obj"><span>밖: goblin.</span></label>
+            </span>
+            <p class="small"><strong>무엇을</strong> 쓰나요?</p>
+            <span class="seg" role="radiogroup" aria-label="사용할 멤버">
+              <label><input type="radio" name="sm-what" value="Hp" checked=""><span>Hp</span></label>
+              <label><input type="radio" name="sm-what" value="Count"><span>Count (static)</span></label>
+              <label><input type="radio" name="sm-what" value="TakeDamage(10)"><span>TakeDamage(10)</span></label>
+              <label><input type="radio" name="sm-what" value="PrintCount()"><span>PrintCount() (static)</span></label>
+            </span>
+            <div class="sim-result is-ok" id="sm-result" aria-live="polite"><p class="sim-result__head">✓ 컴파일됨</p><p class="sim-result__body">// 인스턴스 메서드 TakeDamage 안
+Hp</p><p class="sim-result__note">인스턴스 메서드에는 this(이 객체)가 있어서 Hp는 this.Hp와 같습니다.</p></div>
+            <p class="hint">16가지 조합을 모두 눌러 보세요. 규칙은 두 줄입니다: 인스턴스 멤버는 <em>객체</em>로, static 멤버는 <em>클래스 이름</em>으로.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. 정적 클래스 -->
+    <section class="slide is-past" data-title="정적 클래스" role="group" aria-roledescription="슬라이드" aria-label="5 / 12: 정적 클래스" tabindex="-1" aria-hidden="true" inert="">
+      <div>
+        <p class="eyebrow">정적 클래스 (static class)</p>
+        <h2>객체가 필요 없는 도구 상자</h2>
+        <div class="cols cols--3-2">
+          <div class="stack">
+            <pre class="code has-active" data-lang="csharp" data-highlight="5|7|1-2" data-cp-highlighted="true" data-label="C#" tabindex="0"><code><span class="line is-active" data-line="1"><span class="tok-t">Console</span>.<span class="tok-f">WriteLine</span>(<span class="tok-t">GameMath</span>.<span class="tok-f">Clamp01</span>(<span class="tok-n">1.7f</span>)); <span class="tok-c">// 1</span></span><span class="line is-active" data-line="2"><span class="tok-t">Console</span>.<span class="tok-f">WriteLine</span>(<span class="tok-t">Math</span>.<span class="tok-f">Max</span>(<span class="tok-n">3</span>, <span class="tok-n">7</span>));         <span class="tok-c">// 7</span></span><span class="line" data-line="3"> </span><span class="line" data-line="4"><span class="tok-c">// 객체를 만들 수 없고, static 멤버만 둘 수 있다</span></span><span class="line" data-line="5"><span class="tok-k">static</span> <span class="tok-k">class</span> <span class="tok-t">GameMath</span></span><span class="line" data-line="6">{</span><span class="line" data-line="7">    <span class="tok-k">public</span> <span class="tok-k">static</span> <span class="tok-t">float</span> <span class="tok-f">Clamp01</span>(<span class="tok-t">float</span> v)</span><span class="line" data-line="8">    {</span><span class="line" data-line="9">        <span class="tok-k">if</span> (v &lt; <span class="tok-n">0f</span>) <span class="tok-k">return</span> <span class="tok-n">0f</span>;</span><span class="line" data-line="10">        <span class="tok-k">if</span> (v &gt; <span class="tok-n">1f</span>) <span class="tok-k">return</span> <span class="tok-n">1f</span>;</span><span class="line" data-line="11">        <span class="tok-k">return</span> v;</span><span class="line" data-line="12">    }</span><span class="line" data-line="13">}</span></code></pre>
+          </div>
+          <div class="stack">
+            <ol class="steps small">
+              <li data-step="1" class="is-shown">클래스 앞에 <code>static</code>을 붙이면 <strong>정적 클래스</strong>입니다.</li>
+              <li data-step="2" class="is-shown">안의 멤버도 모두 <code>static</code>이어야 합니다. 빼면 오류 <span class="err-code">CS0708</span>(정적 클래스에는 인스턴스 멤버를 선언할 수 없음).</li>
+              <li data-step="3" class="is-shown is-current">클래스 이름으로 바로 씁니다. <code>new GameMath()</code>는 오류 <span class="err-code">CS0712</span>(정적 클래스의 인스턴스를 만들 수 없음).</li>
+            </ol>
+            <div class="callout callout--key">
+              <span class="callout__title">이미 써 온 정적 클래스</span>
+              <p class="small"><code>Console</code>과 <code>Math</code>가 정적 클래스입니다. 그래서 <code>new Console()</code> 없이 <code>Console.WriteLine</code>을 불러 왔던 것입니다.</p>
+            </div>
+            <div class="callout callout--tip">
+              <span class="callout__title">언제 쓰나</span>
+              <p class="small">상태(필드)가 필요 없는 계산 모음: 수학 함수, 문자열 도우미, 게임 규칙 계산 등.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. 따라 하기 ① -->
+    <section class="slide is-active" data-title="따라 하기 ①: static 카운터" role="group" aria-roledescription="슬라이드" aria-label="6 / 12: 따라 하기 ①: static 카운터" tabindex="-1" aria-hidden="false">
+      <div>
+        <p class="eyebrow">따라 하기 ① · Visual Studio</p>
+        <h2>만든 적의 수를 세는 static 카운터</h2>
+        <div class="cols cols--2-3">
+          <div class="stack">
+            <p class="small">새 콘솔 앱(최상위 문)의 빈 <code>Program.cs</code>에서 시작합니다. 위쪽에 실행할 문장, 아래쪽에 클래스.</p>
+            <ol class="steps small">
+              <li data-step="1" class="is-shown"><code>static</code> 필드 <code>Count</code>를 선언합니다. 클래스에 하나만 생깁니다.</li>
+              <li data-step="2" class="is-shown">생성자에서 <code>Count++</code>. 적이 태어날 때마다 같은 칸이 1씩 올라갑니다.</li>
+              <li data-step="3" class="is-shown"><code>static</code> 메서드 <code>PrintCount</code>를 만듭니다. 안에서는 static 멤버만 씁니다.</li>
+              <li data-step="4" class="is-shown">위쪽에서 적을 만들고 <code>Enemy.PrintCount()</code>를 <strong>클래스 이름으로</strong> 부릅니다.</li>
+              <li data-step="5" class="is-shown is-current"><kbd>Ctrl</kbd>+<kbd>F5</kbd>로 실행합니다.</li>
+            </ol>
+            <figure class="ide is-shown is-current" data-step="5">
+              <div class="ide__bar"><span class="ide__file">디버그 콘솔</span></div>
+              <pre class="code ide__out" data-lang="text" data-cp-highlighted="true" data-label="" tabindex="0"><code><span class="line" data-line="1">지금까지 만든 적: 2마리</span><span class="line" data-line="2">지금까지 만든 적: 3마리</span></code></pre>
+            </figure>
+          </div>
+          <figure class="ide">
+            <div class="ide__bar"><span class="ide__file">Program.cs</span><span class="ide__run">▶ Ctrl+F5</span></div>
+            <pre class="code" data-lang="csharp" data-highlight="10|19|22-25|1-6" data-cp-highlighted="true" data-label="C#" tabindex="0"><code><span class="line" data-line="1"><span class="tok-t">Enemy</span> goblin = <span class="tok-k">new</span> <span class="tok-f">Enemy</span>(<span class="tok-s">"고블린"</span>, <span class="tok-n">30</span>);</span><span class="line" data-line="2"><span class="tok-t">Enemy</span> slime = <span class="tok-k">new</span> <span class="tok-f">Enemy</span>(<span class="tok-s">"슬라임"</span>, <span class="tok-n">20</span>);</span><span class="line" data-line="3"><span class="tok-t">Enemy</span>.<span class="tok-f">PrintCount</span>();</span><span class="line" data-line="4"> </span><span class="line" data-line="5"><span class="tok-t">Enemy</span> orc = <span class="tok-k">new</span> <span class="tok-f">Enemy</span>(<span class="tok-s">"오크"</span>, <span class="tok-n">50</span>);</span><span class="line" data-line="6"><span class="tok-t">Enemy</span>.<span class="tok-f">PrintCount</span>();</span><span class="line" data-line="7"> </span><span class="line" data-line="8"><span class="tok-k">class</span> <span class="tok-t">Enemy</span></span><span class="line" data-line="9">{</span><span class="line" data-line="10">    <span class="tok-k">public</span> <span class="tok-k">static</span> <span class="tok-t">int</span> <span class="tok-t">Count</span> = <span class="tok-n">0</span>;</span><span class="line" data-line="11"> </span><span class="line" data-line="12">    <span class="tok-k">public</span> <span class="tok-t">string</span> <span class="tok-t">Name</span>;</span><span class="line" data-line="13">    <span class="tok-k">public</span> <span class="tok-t">int</span> <span class="tok-t">Hp</span>;</span><span class="line" data-line="14"> </span><span class="line" data-line="15">    <span class="tok-k">public</span> <span class="tok-f">Enemy</span>(<span class="tok-t">string</span> name, <span class="tok-t">int</span> hp)</span><span class="line" data-line="16">    {</span><span class="line" data-line="17">        <span class="tok-t">Name</span> = name;</span><span class="line" data-line="18">        <span class="tok-t">Hp</span> = hp;</span><span class="line" data-line="19">        <span class="tok-t">Count</span>++;</span><span class="line" data-line="20">    }</span><span class="line" data-line="21"> </span><span class="line" data-line="22">    <span class="tok-k">public</span> <span class="tok-k">static</span> <span class="tok-t">void</span> <span class="tok-f">PrintCount</span>()</span><span class="line" data-line="23">    {</span><span class="line" data-line="24">        <span class="tok-t">Console</span>.<span class="tok-f">WriteLine</span>(<span class="tok-s">$"지금까지 만든 적: {Count}마리"</span>);</span><span class="line" data-line="25">    }</span><span class="line" data-line="26">}</span></code></pre>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. 복사의 세 단계 -->
+    <section class="slide" data-title="참조 복사 · 얕은 복사 · 깊은 복사" role="group" aria-roledescription="슬라이드" aria-label="7 / 12: 참조 복사 · 얕은 복사 · 깊은 복사" tabindex="-1" aria-hidden="true" inert="">
+      <div class="cols cols--3-2">
+        <div class="stack">
+          <figure class="figure">
+            <canvas id="copy" width="648" height="385" aria-label="변수 a와 b, Enemy 객체, 전리품 List 객체 사이의 화살표 그림. 대입이면 a와 b가 같은 객체를, 얕은 복사면 객체는 둘이지만 List는 하나를, 깊은 복사면 List까지 둘을 가리킨다. b를 바꾸면 a에도 보이는지 표시한다" style="width: 100%; height: auto; display: block; aspect-ratio: 640 / 380;"></canvas>
+            <figcaption>
+              <span class="cap-row">
+                <span class="seg" role="radiogroup" aria-label="b를 만드는 방법">
+                  <label><input type="radio" name="copy-mode" value="assign" checked=""><span>b = a</span></label>
+                  <label><input type="radio" name="copy-mode" value="shallow"><span>a.ShallowCopy()</span></label>
+                  <label><input type="radio" name="copy-mode" value="deep"><span>a.DeepCopy()</span></label>
+                </span>
+              </span>
+              <span class="cap-row">
+                <button class="btn btn--sm btn--primary" id="copy-hit" type="button">b.Hp -= 10</button>
+                <button class="btn btn--sm btn--primary" id="copy-add" type="button">b.Loot.Add("보석")</button>
+                <button class="btn btn--sm btn--ghost" id="copy-reset" type="button">처음으로</button>
+              </span>
+              <span class="hint">세 방법마다 두 버튼을 눌러 보세요. b를 바꿨을 때 a도 바뀌는지가 핵심입니다.</span>
+            </figcaption>
+          </figure>
+          <pre class="readout" id="copy-log" aria-live="polite">Enemy b = a;
+// a.Hp = 30, a.Loot = [동전]</pre>
+        </div>
+        <div>
+          <p class="eyebrow">객체 복사</p>
+          <h2>복사의 세 단계</h2>
+          <div class="copy-kinds">
+            <div class="callout callout--bad"><span class="callout__title">대입 <code>b = a</code> — 참조만 복사</span><p class="small">객체는 하나. 화살표만 하나 더 생깁니다. b로 무엇을 바꾸든 a에 보입니다.</p></div>
+            <div class="callout callout--warn"><span class="callout__title">얕은 복사 — 객체는 새로, 안의 참조는 그대로</span><p class="small"><code>MemberwiseClone()</code>이 필드 값을 그대로 옮깁니다. <code>Hp</code>는 따로지만 <code>Loot</code> 리스트는 <strong>여전히 공유</strong>합니다.</p></div>
+            <div class="callout callout--tip"><span class="callout__title">깊은 복사 — 가리키는 것까지 새로</span><p class="small">리스트처럼 참조로 연결된 객체도 새로 만듭니다. 원본과 아무것도 공유하지 않습니다.</p></div>
+          </div>
+          <p class="small muted" style="margin-top:10px">어떤 자료는 대입을 “얕은 복사”라고 부르기도 하지만, .NET에서 얕은 복사는 <code>MemberwiseClone</code>처럼 <strong>새 객체를 만들고 필드를 그대로 옮기는 것</strong>을 말합니다. 참조가 무엇인지는 <a class="concept-ref" data-concept-ref="csharp/value-vs-reference" href="https://owo-picopulse-r7h.tail491781.ts.net/concepts/csharp/value-vs-reference.html">복사와 참조: 스택과 힙</a>에서 자세히 다룹니다.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. 따라 하기 ② -->
+    <section class="slide" data-title="따라 하기 ②: 얕은 복사와 깊은 복사" role="group" aria-roledescription="슬라이드" aria-label="8 / 12: 따라 하기 ②: 얕은 복사와 깊은 복사" tabindex="-1" aria-hidden="true" inert="">
+      <div>
+        <p class="eyebrow">따라 하기 ② · Visual Studio</p>
+        <h2>복사 메서드 두 개 만들기</h2>
+        <div class="cols cols--2-3">
+          <div class="stack">
+            <p class="small">①의 <code>Enemy</code>에 전리품 리스트와 복사 메서드를 더합니다. 위쪽 문장은 새로 바꿉니다.</p>
+            <ol class="steps small">
+              <li data-step="1" class="" inert=""><code>Loot</code> 리스트 필드를 추가합니다. 객체마다 리스트 객체를 하나씩 가리킵니다.</li>
+              <li data-step="2" class="" inert=""><strong>얕은 복사</strong>: <code>MemberwiseClone()</code>은 <code>object</code>를 돌려주므로 <code>(Enemy)</code>로 바꿉니다. 생성자를 거치지 않아 <code>Count</code>도 늘지 않습니다.</li>
+              <li data-step="3" class="" inert=""><strong>깊은 복사</strong>: 생성자로 새 객체를 만들고, <code>new List&lt;string&gt;(Loot)</code>로 리스트도 새로 만듭니다.</li>
+              <li data-step="4" class="" inert="">복사본에 전리품을 하나씩 넣어 봅니다.</li>
+              <li data-step="5" class="" inert="">실행: 얕은 복사본에 넣은 “열쇠”가 <strong>보스에게도</strong> 들어가 있습니다.</li>
+            </ol>
+            <figure class="ide" data-step="5" inert="">
+              <div class="ide__bar"><span class="ide__file">디버그 콘솔</span></div>
+              <pre class="code ide__out" data-lang="text" data-cp-highlighted="true" data-label="" tabindex="0"><code><span class="line" data-line="1">보스: 왕관, 열쇠</span><span class="line" data-line="2">깊은 복사본: 왕관, 물약</span></code></pre>
+            </figure>
+          </div>
+          <figure class="ide">
+            <div class="ide__bar"><span class="ide__file">Program.cs</span><span class="ide__run">▶ Ctrl+F5</span></div>
+            <pre class="code" data-lang="csharp" data-highlight="13|15-18|20-25|1-9" data-cp-highlighted="true" data-label="C#" tabindex="0"><code><span class="line" data-line="1"><span class="tok-t">Enemy</span> boss = <span class="tok-k">new</span> <span class="tok-f">Enemy</span>(<span class="tok-s">"보스"</span>, <span class="tok-n">300</span>);</span><span class="line" data-line="2">boss.<span class="tok-t">Loot</span>.<span class="tok-f">Add</span>(<span class="tok-s">"왕관"</span>);</span><span class="line" data-line="3"><span class="tok-t">Enemy</span> shallow = boss.<span class="tok-f">ShallowCopy</span>();</span><span class="line" data-line="4"><span class="tok-t">Enemy</span> deep = boss.<span class="tok-f">DeepCopy</span>();</span><span class="line" data-line="5">shallow.<span class="tok-t">Loot</span>.<span class="tok-f">Add</span>(<span class="tok-s">"열쇠"</span>);</span><span class="line" data-line="6">deep.<span class="tok-t">Loot</span>.<span class="tok-f">Add</span>(<span class="tok-s">"물약"</span>);</span><span class="line" data-line="7"><span class="tok-c">// string.Join: 리스트를 쉼표로 이어 붙인다</span></span><span class="line" data-line="8"><span class="tok-t">Console</span>.<span class="tok-f">WriteLine</span>(<span class="tok-s">"보스: "</span> + <span class="tok-t">string</span>.<span class="tok-f">Join</span>(<span class="tok-s">", "</span>, boss.<span class="tok-t">Loot</span>));</span><span class="line" data-line="9"><span class="tok-t">Console</span>.<span class="tok-f">WriteLine</span>(<span class="tok-s">"깊은 복사본: "</span> + <span class="tok-t">string</span>.<span class="tok-f">Join</span>(<span class="tok-s">", "</span>, deep.<span class="tok-t">Loot</span>));</span><span class="line" data-line="10"> </span><span class="line" data-line="11"><span class="tok-k">class</span> <span class="tok-t">Enemy</span></span><span class="line" data-line="12">{</span><span class="line" data-line="13">    <span class="tok-k">public</span> <span class="tok-t">List</span>&lt;<span class="tok-t">string</span>&gt; <span class="tok-t">Loot</span> = <span class="tok-k">new</span> <span class="tok-f">List</span>&lt;<span class="tok-t">string</span>&gt;();</span><span class="line" data-line="14"> </span><span class="line" data-line="15">    <span class="tok-k">public</span> <span class="tok-t">Enemy</span> <span class="tok-f">ShallowCopy</span>()</span><span class="line" data-line="16">    {</span><span class="line" data-line="17">        <span class="tok-k">return</span> (<span class="tok-t">Enemy</span>)<span class="tok-f">MemberwiseClone</span>();</span><span class="line" data-line="18">    }</span><span class="line" data-line="19"> </span><span class="line" data-line="20">    <span class="tok-k">public</span> <span class="tok-t">Enemy</span> <span class="tok-f">DeepCopy</span>()</span><span class="line" data-line="21">    {</span><span class="line" data-line="22">        <span class="tok-t">Enemy</span> copy = <span class="tok-k">new</span> <span class="tok-f">Enemy</span>(<span class="tok-t">Name</span>, <span class="tok-t">Hp</span>);</span><span class="line" data-line="23">        copy.<span class="tok-t">Loot</span> = <span class="tok-k">new</span> <span class="tok-f">List</span>&lt;<span class="tok-t">string</span>&gt;(<span class="tok-t">Loot</span>);</span><span class="line" data-line="24">        <span class="tok-k">return</span> copy;</span><span class="line" data-line="25">    }</span><span class="line" data-line="26"> </span><span class="line" data-line="27">    <span class="tok-c">// ... Count, Name, Hp, 생성자, PrintCount는 ① 그대로</span></span><span class="line" data-line="28">}</span></code></pre>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. 흔한 함정 -->
+    <section class="slide" data-title="흔한 함정" role="group" aria-roledescription="슬라이드" aria-label="9 / 12: 흔한 함정" tabindex="-1" aria-hidden="true" inert="">
+      <div>
+        <p class="eyebrow">흔한 함정</p>
+        <h2>static과 복사에서 자주 하는 실수</h2>
+        <div class="controls" style="margin:0 0 12px">
+          <span class="seg" role="radiogroup" aria-label="함정 고르기">
+            <label><input type="radio" name="pit" value="1" checked=""><span>static 안에서 Hp</span></label>
+            <label><input type="radio" name="pit" value="2"><span>객체로 static</span></label>
+            <label><input type="radio" name="pit" value="3"><span>static이면 안 되는 필드</span></label>
+            <label><input type="radio" name="pit" value="4"><span>얕은 복사의 공유</span></label>
+          </span>
+        </div>
+        <div class="cols pit" data-pit="1">
+          <pre class="code" data-lang="csharp" data-cp-highlighted="true" data-label="C#" tabindex="0"><code><span class="line" data-line="1"><span class="tok-k">class</span> <span class="tok-t">Enemy</span></span><span class="line" data-line="2">{</span><span class="line" data-line="3">    <span class="tok-k">public</span> <span class="tok-t">int</span> <span class="tok-t">Hp</span> = <span class="tok-n">30</span>;</span><span class="line" data-line="4"> </span><span class="line" data-line="5">    <span class="tok-k">public</span> <span class="tok-k">static</span> <span class="tok-t">void</span> <span class="tok-f">PrintHp</span>()</span><span class="line" data-line="6">    {</span><span class="line" data-line="7">        <span class="tok-t">Console</span>.<span class="tok-f">WriteLine</span>(<span class="tok-t">Hp</span>);  <span class="tok-c">// ← 오류</span></span><span class="line" data-line="8">    }</span><span class="line" data-line="9">}</span></code></pre>
+          <div class="stack">
+            <div class="callout callout--bad"><span class="callout__title"><span class="err-code">CS0120</span> 오류</span><p class="small">인스턴스 필드 <code>Hp</code>를 쓰려면 객체 참조가 필요합니다. static 메서드에는 “이 객체”가 없습니다.</p></div>
+            <div class="callout callout--tip"><span class="callout__title">고치기</span><p class="small"><code>static</code>을 빼서 인스턴스 메서드로 만들거나, 객체를 매개변수로 받습니다: <code>PrintHp(Enemy e)</code> → <code>e.Hp</code>.</p></div>
+          </div>
+        </div>
+        <div class="cols pit" data-pit="2" hidden="">
+          <pre class="code" data-lang="csharp" data-cp-highlighted="true" data-label="C#" tabindex="0"><code><span class="line" data-line="1"><span class="tok-t">Enemy</span> goblin = <span class="tok-k">new</span> <span class="tok-f">Enemy</span>();</span><span class="line" data-line="2"><span class="tok-t">Console</span>.<span class="tok-f">WriteLine</span>(goblin.<span class="tok-t">Count</span>); <span class="tok-c">// ← 오류</span></span><span class="line" data-line="3"> </span><span class="line" data-line="4"><span class="tok-k">class</span> <span class="tok-t">Enemy</span></span><span class="line" data-line="5">{</span><span class="line" data-line="6">    <span class="tok-k">public</span> <span class="tok-k">static</span> <span class="tok-t">int</span> <span class="tok-t">Count</span>;</span><span class="line" data-line="7">}</span></code></pre>
+          <div class="stack">
+            <div class="callout callout--bad"><span class="callout__title"><span class="err-code">CS0176</span> 오류</span><p class="small">static 멤버는 객체(인스턴스 참조)로 쓸 수 없습니다. 형식 이름으로 쓰라는 오류입니다.</p></div>
+            <div class="callout callout--tip"><span class="callout__title">고치기</span><p class="small"><code>Enemy.Count</code> — static 멤버는 항상 클래스 이름으로.</p></div>
+          </div>
+        </div>
+        <div class="cols pit" data-pit="3" hidden="">
+          <pre class="code" data-lang="csharp" data-cp-highlighted="true" data-label="C#" tabindex="0"><code><span class="line" data-line="1"><span class="tok-t">Enemy</span> a = <span class="tok-k">new</span> <span class="tok-f">Enemy</span>();</span><span class="line" data-line="2"><span class="tok-t">Enemy</span> b = <span class="tok-k">new</span> <span class="tok-f">Enemy</span>();</span><span class="line" data-line="3">a.<span class="tok-f">TakeDamage</span>(<span class="tok-n">30</span>);</span><span class="line" data-line="4">b.<span class="tok-f">PrintHp</span>();             <span class="tok-c">// 70?! b는 안 맞았는데</span></span><span class="line" data-line="5"> </span><span class="line" data-line="6"><span class="tok-k">class</span> <span class="tok-t">Enemy</span></span><span class="line" data-line="7">{</span><span class="line" data-line="8">    <span class="tok-k">static</span> <span class="tok-t">int</span> <span class="tok-t">Hp</span> = <span class="tok-n">100</span>; <span class="tok-c">// ← 모든 적이 하나를 공유</span></span><span class="line" data-line="9">    <span class="tok-k">public</span> <span class="tok-t">void</span> <span class="tok-f">TakeDamage</span>(<span class="tok-t">int</span> d) { <span class="tok-t">Hp</span> -= d; }</span><span class="line" data-line="10">    <span class="tok-k">public</span> <span class="tok-t">void</span> <span class="tok-f">PrintHp</span>() { <span class="tok-t">Console</span>.<span class="tok-f">WriteLine</span>(<span class="tok-t">Hp</span>); }</span><span class="line" data-line="11">}</span></code></pre>
+          <div class="stack">
+            <div class="callout callout--bad"><span class="callout__title">오류 없음 — 그래서 더 위험</span><p class="small">컴파일도 되고 실행도 됩니다. 하지만 체력은 객체마다 따로여야 하는 값이라, 한 마리를 때리면 모든 적의 체력이 줄어듭니다.</p></div>
+            <div class="callout callout--tip"><span class="callout__title">고치기</span><p class="small">“객체마다 다른 값인가, 모두에게 하나인가?”를 먼저 묻습니다. 체력·이름·위치는 인스턴스, 생성된 수·공통 설정은 static.</p></div>
+          </div>
+        </div>
+        <div class="cols pit" data-pit="4" hidden="">
+          <pre class="code" data-lang="csharp" data-cp-highlighted="true" data-label="C#" tabindex="0"><code><span class="line" data-line="1"><span class="tok-t">Enemy</span> copy = boss.<span class="tok-f">ShallowCopy</span>();</span><span class="line" data-line="2">copy.<span class="tok-t">Loot</span>.<span class="tok-f">Clear</span>();   <span class="tok-c">// 복사본만 비웠는데…</span></span><span class="line" data-line="3"><span class="tok-t">Console</span>.<span class="tok-f">WriteLine</span>(boss.<span class="tok-t">Loot</span>.<span class="tok-t">Count</span>); <span class="tok-c">// 0</span></span></code></pre>
+          <div class="stack">
+            <div class="callout callout--bad"><span class="callout__title">오류 없음 — 원본의 리스트가 비었다</span><p class="small">얕은 복사본의 <code>Loot</code>는 원본과 <strong>같은 리스트</strong>를 가리킵니다. 복사본의 리스트를 비우면 원본도 비워집니다.</p></div>
+            <div class="callout callout--tip"><span class="callout__title">고치기</span><p class="small">안에 리스트나 다른 객체가 있으면 깊은 복사로 그것까지 새로 만듭니다: <code>copy.Loot = new List&lt;string&gt;(Loot);</code></p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10. 확인 문제 -->
+    <section class="slide" data-title="확인 문제" role="group" aria-roledescription="슬라이드" aria-label="10 / 12: 확인 문제" tabindex="-1" aria-hidden="true" inert="">
+      <div>
+        <p class="eyebrow">확인 문제</p>
+        <h2>이해했는지 확인해 볼까요?</h2>
+        <div class="quiz is-solved" data-answer="b" data-cp-quiz="true">
+          <p class="quiz__q">Q1. <code>public static int Count;</code>가 있고 생성자에서 <code>Count++</code>를 합니다. <code>new Enemy()</code>를 세 번 하면 <code>Enemy.Count</code>는?</p>
+          <div class="quiz__choices">
+            <button class="quiz__choice" data-choice="a" data-why="그것은 static이 없는 인스턴스 필드일 때입니다. static 필드는 클래스에 하나뿐입니다." type="button" disabled="" aria-disabled="true">객체마다 1</button>
+            <button class="quiz__choice is-correct" data-choice="b" data-why="정답! 세 객체가 모두 같은 칸을 1씩 올렸습니다." type="button" disabled="" aria-disabled="true">3</button>
+            <button class="quiz__choice" data-choice="c" data-why="생성자도 static 필드를 바꿀 수 있습니다. 인스턴스 메서드에서는 static 멤버를 자유롭게 씁니다." type="button" disabled="" aria-disabled="true">컴파일 오류 — 생성자에서 static 필드를 바꿀 수 없다</button>
+          </div>
+          <p class="quiz__feedback is-correct" aria-live="polite">정답! 세 객체가 모두 같은 칸을 1씩 올렸습니다.</p><div class="quiz__explain"><p>static 필드는 객체가 없어도 존재하고, 모든 객체가 같은 값을 봅니다.</p></div>
+        </div>
+        <div class="quiz is-solved" data-answer="c" data-cp-quiz="true">
+          <p class="quiz__q">Q2. <code>static</code> 메서드 안에서 할 수 <strong>없는</strong> 것은?</p>
+          <div class="quiz__choices">
+            <button class="quiz__choice" data-choice="a" data-why="static 메서드에서 static 필드는 이름만으로 쓸 수 있습니다." type="button" disabled="" aria-disabled="true">static 필드 Count 읽기</button>
+            <button class="quiz__choice" data-choice="b" data-why="Console.WriteLine도 static 메서드라 어디서든 부를 수 있습니다." type="button" disabled="" aria-disabled="true">Console.WriteLine 부르기</button>
+            <button class="quiz__choice is-correct" data-choice="c" data-why="정답! static 메서드에는 this가 없습니다 (CS0026)." type="button" disabled="" aria-disabled="true">this.Hp 읽기</button>
+          </div>
+          <p class="quiz__feedback is-correct" aria-live="polite">정답! static 메서드에는 this가 없습니다 (CS0026).</p><div class="quiz__explain"><p>인스턴스 멤버를 쓰려면 <code>e.Hp</code>처럼 “어느 객체의 것인지”를 직접 알려 줘야 합니다.</p></div>
+        </div>
+        <div class="quiz" data-answer="b" data-cp-quiz="true">
+          <p class="quiz__q">Q3. <code>Enemy b = a.ShallowCopy(); b.Hp = 1; b.Loot.Add("돌");</code> 이후 <code>a</code>는? (<code>ShallowCopy</code>는 <code>MemberwiseClone</code>)</p>
+          <div class="quiz__choices">
+            <button class="quiz__choice" data-choice="a" data-why="Loot 리스트는 공유되므로 a의 리스트에도 들어갑니다." type="button">Hp도 Loot도 그대로</button>
+            <button class="quiz__choice" data-choice="b" data-why="정답! Hp 값은 복사되어 따로지만, Loot는 같은 리스트를 가리킵니다." type="button">Hp는 그대로, Loot에는 "돌"이 들어 있다</button>
+            <button class="quiz__choice" data-choice="c" data-why="그것은 b = a처럼 대입했을 때입니다. 얕은 복사는 객체를 새로 만듭니다." type="button">Hp도 1이 되고 Loot에도 "돌"이 있다</button>
+          </div>
+          <p class="quiz__feedback" aria-live="polite"></p><div class="quiz__explain"><p>얕은 복사는 “한 겹”만 복사합니다. 안쪽 객체까지 따로 두려면 깊은 복사가 필요합니다.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11. 실습과제: 빈칸 채우기 -->
+    <section class="slide" data-title="실습과제: 빈칸 채우기" role="group" aria-roledescription="슬라이드" aria-label="11 / 12: 실습과제: 빈칸 채우기" tabindex="-1" aria-hidden="true" inert="">
+      <div>
+        <p class="eyebrow">마지막 실습과제</p>
+        <h2>외워서 채우기: static과 복사</h2>
+        <div class="cols cols--2-3">
+          <div class="stack">
+            <p>아래 출력이 나오도록 빈칸을 채우세요. 오늘 배운 <strong>외워야 할 문법</strong>만 비워 두었습니다.</p>
+            <figure class="ide">
+              <div class="ide__bar"><span class="ide__file">목표 출력</span></div>
+              <pre class="code ide__out" data-lang="text" data-cp-highlighted="true" data-label="" tabindex="0"><code><span class="line" data-line="1">2</span></code></pre>
+            </figure>
+            <ul class="small muted">
+              <li>C#은 대소문자를 구분합니다.</li>
+              <li><kbd>Enter</kbd>로 다음 칸, 마지막 칸에서 <kbd>Enter</kbd>를 누르면 채점합니다.</li>
+              <li>깊은 복사는 생성자를 거치므로 <code>Count</code>가 2가 됩니다.</li>
+            </ul>
+          </div>
+          <div class="cloze" data-cp-cloze="true">
+            <pre class="code" data-lang="csharp" data-cp-highlighted="true" data-label="C#" tabindex="0"><code><span class="line" data-line="1"><span class="tok-t">Enemy</span> goblin = <span class="tok-k">new</span> <span class="tok-f">Enemy</span>(<span class="tok-s">"고블린"</span>);</span><span class="line" data-line="2"><span class="tok-t">Enemy</span> copy = goblin.<span class="tok-f">DeepCopy</span>();</span><span class="line" data-line="3"><span class="tok-t">Console</span>.<span class="tok-f">WriteLine</span>(<input class="cloze__blank" type="text" data-blank="0" aria-label="빈칸 1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="next" style="width:6.5ch">.<span class="tok-t">Count</span>);</span><span class="line" data-line="4"> </span><span class="line" data-line="5"><span class="tok-k">class</span> <span class="tok-t">Enemy</span></span><span class="line" data-line="6">{</span><span class="line" data-line="7">    <span class="tok-k">public</span> <input class="cloze__blank" type="text" data-blank="1" aria-label="빈칸 2" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="next" style="width:7.5ch"> <span class="tok-t">int</span> <span class="tok-t">Count</span>;</span><span class="line" data-line="8">    <span class="tok-k">public</span> <span class="tok-t">string</span> <span class="tok-t">Name</span>;</span><span class="line" data-line="9">    <span class="tok-k">public</span> <span class="tok-t">List</span>&lt;<span class="tok-t">string</span>&gt; <span class="tok-t">Loot</span> = <span class="tok-k">new</span> <span class="tok-f">List</span>&lt;<span class="tok-t">string</span>&gt;();</span><span class="line" data-line="10"> </span><span class="line" data-line="11">    <span class="tok-k">public</span> <span class="tok-f">Enemy</span>(<span class="tok-t">string</span> name)</span><span class="line" data-line="12">    {</span><span class="line" data-line="13">        <span class="tok-t">Name</span> = name;</span><span class="line" data-line="14">        <span class="tok-t">Count</span>++;</span><span class="line" data-line="15">    }</span><span class="line" data-line="16"> </span><span class="line" data-line="17">    <span class="tok-k">public</span> <span class="tok-t">Enemy</span> <span class="tok-f">ShallowCopy</span>()</span><span class="line" data-line="18">    {</span><span class="line" data-line="19">        <span class="tok-k">return</span> (<span class="tok-t">Enemy</span>)<input class="cloze__blank" type="text" data-blank="2" aria-label="빈칸 3" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="next" style="width:16.5ch">();</span><span class="line" data-line="20">    }</span><span class="line" data-line="21"> </span><span class="line" data-line="22">    <span class="tok-k">public</span> <span class="tok-t">Enemy</span> <span class="tok-f">DeepCopy</span>()</span><span class="line" data-line="23">    {</span><span class="line" data-line="24">        <span class="tok-t">Enemy</span> c = <input class="cloze__blank" type="text" data-blank="3" aria-label="빈칸 4" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="next" style="width:4.5ch"> <span class="tok-f">Enemy</span>(<span class="tok-t">Name</span>);</span><span class="line" data-line="25">        c.<span class="tok-t">Loot</span> = <input class="cloze__blank" type="text" data-blank="4" aria-label="빈칸 5" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="next" style="width:17.5ch">(<span class="tok-t">Loot</span>);</span><span class="line" data-line="26">        <span class="tok-k">return</span> c;</span><span class="line" data-line="27">    }</span><span class="line" data-line="28">}</span></code></pre>
+          <div class="cloze__bar"><button class="btn btn--sm btn--primary" type="button" data-cloze="check">채점하기</button><button class="btn btn--sm btn--ghost" type="button" data-cloze="reveal">정답 보기</button><button class="btn btn--sm btn--ghost" type="button" data-cloze="reset">다시 하기</button><span class="cloze__result" aria-live="polite"></span></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12. 정리 -->
+    <section class="slide" data-title="정리" role="group" aria-roledescription="슬라이드" aria-label="12 / 12: 정리" tabindex="-1" aria-hidden="true" inert="">
+      <div>
+        <p class="eyebrow">정리</p>
+        <h2>정적 멤버와 객체 복사 한눈에 보기</h2>
+        <div class="cols">
+          <div class="stack">
+            <ul class="checklist">
+              <li><code>static</code> 필드는 <strong>클래스에 하나</strong>, 인스턴스 필드는 <strong>객체마다 하나</strong>입니다.</li>
+              <li>static 멤버는 <code>Enemy.Count</code>처럼 <strong>클래스 이름</strong>으로, 인스턴스 멤버는 <strong>객체</strong>로 씁니다.</li>
+              <li>static 메서드에는 <code>this</code>가 없어서 인스턴스 멤버를 이름만으로 쓸 수 없습니다.</li>
+              <li><code>static class</code>는 객체를 만들 수 없는 도구 상자입니다 (<code>Math</code>, <code>Console</code>).</li>
+              <li>대입은 참조만 복사, 얕은 복사는 한 겹만, 깊은 복사는 안쪽 객체까지 새로 만듭니다.</li>
+            </ul>
+          </div>
+          <div class="card card--accent">
+            <h3>외워 둘 문법 한 장</h3>
+            <pre class="code code-tight" data-lang="csharp" data-cp-highlighted="true" data-label="C#" tabindex="0"><code><span class="line" data-line="1"><span class="tok-t">Console</span>.<span class="tok-f">WriteLine</span>(<span class="tok-t">Enemy</span>.<span class="tok-t">Count</span>); <span class="tok-c">// 클래스 이름으로</span></span><span class="line" data-line="2"> </span><span class="line" data-line="3"><span class="tok-k">class</span> <span class="tok-t">Enemy</span></span><span class="line" data-line="4">{</span><span class="line" data-line="5">    <span class="tok-k">public</span> <span class="tok-k">static</span> <span class="tok-t">int</span> <span class="tok-t">Count</span>;    <span class="tok-c">// 클래스에 하나</span></span><span class="line" data-line="6">    <span class="tok-k">public</span> <span class="tok-t">List</span>&lt;<span class="tok-t">string</span>&gt; <span class="tok-t">Loot</span> = <span class="tok-k">new</span> <span class="tok-f">List</span>&lt;<span class="tok-t">string</span>&gt;();</span><span class="line" data-line="7"> </span><span class="line" data-line="8">    <span class="tok-k">public</span> <span class="tok-k">static</span> <span class="tok-t">void</span> <span class="tok-f">PrintCount</span>() { <span class="tok-t">Console</span>.<span class="tok-f">WriteLine</span>(<span class="tok-t">Count</span>); }</span><span class="line" data-line="9"> </span><span class="line" data-line="10">    <span class="tok-k">public</span> <span class="tok-t">Enemy</span> <span class="tok-f">ShallowCopy</span>()  <span class="tok-c">// 한 겹만</span></span><span class="line" data-line="11">    {</span><span class="line" data-line="12">        <span class="tok-k">return</span> (<span class="tok-t">Enemy</span>)<span class="tok-f">MemberwiseClone</span>();</span><span class="line" data-line="13">    }</span><span class="line" data-line="14">}</span><span class="line" data-line="15"> </span><span class="line" data-line="16"><span class="tok-k">static</span> <span class="tok-k">class</span> <span class="tok-t">GameMath</span> { }       <span class="tok-c">// static 멤버만</span></span></code></pre>
+            <h3 style="margin-top:1em">다음으로 볼 개념</h3>
+            <div class="next-list">
+              <a class="concept-ref" data-concept-ref="csharp/method-arguments" href="https://owo-picopulse-r7h.tail491781.ts.net/concepts/csharp/method-arguments.html">오버로딩과 인수 문법</a>
+              <a class="concept-ref" data-concept-ref="csharp/access-modifiers" href="https://owo-picopulse-r7h.tail491781.ts.net/concepts/csharp/access-modifiers.html">접근 한정자와 캡슐화</a>
+              <a class="concept-ref" data-concept-ref="csharp/value-vs-reference" href="https://owo-picopulse-r7h.tail491781.ts.net/concepts/csharp/value-vs-reference.html">복사와 참조: 스택과 힙</a>
+              <span class="concept-ref" data-concept-ref="csharp/struct-and-tuple">구조체와 튜플</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script data-source="concept.js">
+/*
+ * Game Concept Library — concept page runtime (window.CP).
+ * Inlined into every concept page at build time. No dependencies, no network.
+ *
+ * Responsibilities
+ *   - slide deck: chrome (top bar, progress, nav, table of contents), keyboard,
+ *     swipe, URL hash deep links, progressive reveal steps, code highlighting
+ *   - quizzes, fill-in-the-blank code exercises (.cloze), concept cross
+ *     references, theme, reading progress
+ *   - a small toolkit for interactive figures: CP.canvas, CP.loop, CP.drag,
+ *     CP.points, CP.bind, CP.colors, CP.draw
+ *
+ * Reference: docs/AUTHORING.md
+ */
+(function () {
+  'use strict';
+
+  if (window.CP) return;
+
+  const doc = document;
+  const root = doc.documentElement;
+  const THEME_KEY = 'gcl-theme';
+  const PROGRESS_KEY = 'gcl-progress';
+
+  /* ───────────────────────── Utilities ───────────────────────── */
+
+  const clamp = (v, lo, hi) => (v < lo ? lo : v > hi ? hi : v);
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const invLerp = (a, b, v) => (a === b ? 0 : (v - a) / (b - a));
+  const remap = (v, a1, b1, a2, b2) => lerp(a2, b2, invLerp(a1, b1, v));
+  const TAU = Math.PI * 2;
+
+  function $(sel, scope) {
+    if (typeof sel !== 'string') return sel || null;
+    return (scope || doc).querySelector(sel);
+  }
+
+  function $$(sel, scope) {
+    if (typeof sel === 'string') return Array.from((scope || doc).querySelectorAll(sel));
+    if (!sel) return [];
+    if (sel instanceof Element) return [sel];
+    return Array.from(sel);
+  }
+
+  function el(tag, attrs, children) {
+    const node = doc.createElement(tag);
+    if (attrs) {
+      for (const [k, v] of Object.entries(attrs)) {
+        if (v === false || v === null || v === undefined) continue;
+        if (k === 'text') node.textContent = v;
+        else if (k === 'html') node.innerHTML = v;
+        else node.setAttribute(k, v === true ? '' : String(v));
+      }
+    }
+    for (const child of children || []) node.append(child);
+    return node;
+  }
+
+  const storage = {
+    get(key) {
+      try {
+        return window.localStorage.getItem(key);
+      } catch {
+        return null;
+      }
+    },
+    set(key, value) {
+      try {
+        window.localStorage.setItem(key, value);
+        return true;
+      } catch {
+        return false;
+      }
+    },
+  };
+
+  /** Seeded PRNG (mulberry32) so demos can be reproducible. */
+  function rng(seed) {
+    let s = (Number(seed) >>> 0) || 0x9e3779b9;
+    const next = () => {
+      s = (s + 0x6d2b79f5) >>> 0;
+      let t = s;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+    next.range = (lo, hi) => lo + (hi - lo) * next();
+    next.int = (lo, hi) => Math.floor(lo + (hi - lo + 1) * next());
+    next.pick = (arr) => arr[Math.floor(next() * arr.length)];
+    return next;
+  }
+
+  /* ───────────────────────── Events ───────────────────────── */
+
+  const listeners = new Map();
+
+  function on(name, fn) {
+    if (!listeners.has(name)) listeners.set(name, new Set());
+    listeners.get(name).add(fn);
+    return () => listeners.get(name).delete(fn);
+  }
+
+  function emit(name, detail) {
+    for (const fn of Array.from(listeners.get(name) || [])) {
+      try {
+        fn(detail);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }
+
+  /* ───────────────────────── Theme & colors ───────────────────────── */
+
+  const lightQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: light)') : null;
+  const motionQuery = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+
+  function storedTheme() {
+    const t = storage.get(THEME_KEY);
+    return t === 'light' || t === 'dark' ? t : null;
+  }
+
+  function effectiveTheme() {
+    return root.dataset.theme || (lightQuery && lightQuery.matches ? 'light' : 'dark');
+  }
+
+  const initialTheme = storedTheme();
+  if (initialTheme) root.dataset.theme = initialTheme;
+
+  const colors = { viz: [] };
+  const fonts = { sans: 'system-ui, sans-serif', mono: 'monospace' };
+  let colorsReady = false;
+  let probe = null;
+  let pixel = null;
+
+  const COLOR_VARS = {
+    fg: '--fg',
+    muted: '--fg-muted',
+    subtle: '--fg-subtle',
+    line: '--line',
+    lineStrong: '--line-strong',
+    bg: '--bg',
+    elev: '--bg-elev',
+    soft: '--bg-soft',
+    sunken: '--bg-sunken',
+    accent: '--accent',
+    accentInk: '--accent-ink',
+    good: '--good',
+    bad: '--bad',
+    warn: '--warn',
+  };
+
+  /** Resolve any CSS color (including var() and color-mix()) to an rgb()/rgba() string. */
+  function resolveColor(value) {
+    if (!probe) {
+      probe = el('span', { 'aria-hidden': 'true' });
+      probe.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden;visibility:hidden;pointer-events:none';
+    }
+    if (!probe.isConnected) (doc.body || root).appendChild(probe);
+    probe.style.color = '';
+    probe.style.color = value;
+    const computed = getComputedStyle(probe).color;
+    if (!pixel) {
+      const c = doc.createElement('canvas');
+      c.width = 1;
+      c.height = 1;
+      pixel = c.getContext('2d', { willReadFrequently: true });
+    }
+    if (!pixel) return computed;
+    pixel.clearRect(0, 0, 1, 1);
+    pixel.fillStyle = '#000';
+    pixel.fillStyle = computed;
+    pixel.fillRect(0, 0, 1, 1);
+    const [r, g, b, a] = pixel.getImageData(0, 0, 1, 1).data;
+    return a === 255 ? `rgb(${r}, ${g}, ${b})` : `rgba(${r}, ${g}, ${b}, ${(a / 255).toFixed(3)})`;
+  }
+
+  function refreshColors() {
+    for (const [key, cssVar] of Object.entries(COLOR_VARS)) colors[key] = resolveColor(`var(${cssVar})`);
+    colors.viz = [1, 2, 3, 4, 5, 6].map((i) => resolveColor(`var(--viz-${i})`));
+    const cs = getComputedStyle(root);
+    fonts.sans = cs.getPropertyValue('--font-sans').trim() || fonts.sans;
+    fonts.mono = cs.getPropertyValue('--font-mono').trim() || fonts.mono;
+    colorsReady = true;
+  }
+
+  function ensureColors() {
+    if (!colorsReady) refreshColors();
+    return colors;
+  }
+
+  function parseRgb(color) {
+    const hex = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(String(color).trim());
+    if (hex) {
+      let h = hex[1];
+      if (h.length === 3) h = h.replace(/./g, (c) => c + c);
+      return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16), 1];
+    }
+    const m = /rgba?\(([^)]+)\)/i.exec(String(color));
+    if (!m) return null;
+    const parts = m[1].split(/[\s,/]+/).filter(Boolean).map(parseFloat);
+    return [parts[0], parts[1], parts[2], parts.length > 3 ? parts[3] : 1];
+  }
+
+  /** Same color with a new alpha: CP.alpha(CP.colors.accent, 0.3). */
+  function alpha(color, a) {
+    const rgb = parseRgb(color);
+    if (!rgb) return color;
+    return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${clamp(a, 0, 1)})`;
+  }
+
+  /** Linear blend of two colors in sRGB: CP.mix(a, b, 0.5). */
+  function mix(c1, c2, t) {
+    const a = parseRgb(c1);
+    const b = parseRgb(c2);
+    if (!a || !b) return c1;
+    const k = clamp(t, 0, 1);
+    const ch = (i) => Math.round(lerp(a[i], b[i], k));
+    return `rgba(${ch(0)}, ${ch(1)}, ${ch(2)}, ${lerp(a[3], b[3], k).toFixed(3)})`;
+  }
+
+  function font(size = 14, weight = 500, family = 'sans') {
+    ensureColors();
+    return `${weight} ${size}px ${family === 'mono' ? fonts.mono : fonts.sans}`;
+  }
+
+  const views = new Set();
+
+  function themeChanged() {
+    refreshColors();
+    for (const v of views) v.redraw();
+    updateThemeButton();
+    emit('theme', { theme: effectiveTheme() });
+  }
+
+  function setTheme(theme) {
+    if (theme === 'light' || theme === 'dark') {
+      root.dataset.theme = theme;
+      storage.set(THEME_KEY, theme);
+    } else {
+      delete root.dataset.theme;
+      storage.set(THEME_KEY, '');
+    }
+    themeChanged();
+  }
+
+  function toggleTheme() {
+    setTheme(effectiveTheme() === 'dark' ? 'light' : 'dark');
+  }
+
+  if (lightQuery) {
+    const onScheme = () => {
+      if (!root.dataset.theme) themeChanged();
+    };
+    if (lightQuery.addEventListener) lightQuery.addEventListener('change', onScheme);
+    else if (lightQuery.addListener) lightQuery.addListener(onScheme);
+  }
+
+  /* ───────────────────────── Canvas views ───────────────────────── */
+
+  /**
+   * Make a crisp, responsive canvas with a fixed logical coordinate system.
+   * The logical size defaults to the canvas width/height attributes; drawing
+   * always happens in those units no matter how large the canvas is shown.
+   *
+   *   const view = CP.canvas('#c', (ctx, v) => { ... v.w, v.h ... });
+   *   view.redraw();      // schedule a repaint (coalesced, next frame)
+   *   view.paint();       // repaint now (use inside CP.loop ticks)
+   *   view.toLocal(evt);  // pointer event → logical {x, y}
+   */
+  function canvas(target, options) {
+    const node = $(target);
+    if (!node || node.tagName !== 'CANVAS') throw new Error(`CP.canvas: canvas 요소를 찾을 수 없습니다 (${target})`);
+    const opts = typeof options === 'function' ? { draw: options } : options || {};
+    const lw = Number(opts.width) || Number(node.getAttribute('width')) || 800;
+    const lh = Number(opts.height) || Number(node.getAttribute('height')) || 450;
+    node.style.width = '100%';
+    node.style.height = 'auto';
+    node.style.display = 'block';
+    node.style.aspectRatio = `${lw} / ${lh}`;
+    const ctx = node.getContext('2d');
+
+    const view = {
+      el: node,
+      ctx,
+      w: lw,
+      h: lh,
+      scale: 1,
+      ox: 0,
+      oy: 0,
+      dpr: 1,
+      draw: opts.draw || null,
+      pending: 0,
+    };
+
+    function measure() {
+      const cssW = node.clientWidth;
+      const cssH = node.clientHeight;
+      if (!cssW || !cssH) return false;
+      const dpr = clamp(window.devicePixelRatio || 1, 1, 3);
+      const bw = Math.max(1, Math.round(cssW * dpr));
+      const bh = Math.max(1, Math.round(cssH * dpr));
+      if (node.width !== bw) node.width = bw;
+      if (node.height !== bh) node.height = bh;
+      view.dpr = dpr;
+      view.scale = Math.min(cssW / lw, cssH / lh);
+      view.ox = (cssW - lw * view.scale) / 2;
+      view.oy = (cssH - lh * view.scale) / 2;
+      return true;
+    }
+
+    view.paint = () => {
+      if (view.pending) {
+        cancelAnimationFrame(view.pending);
+        view.pending = 0;
+      }
+      if (!measure() || !ctx) return;
+      ensureColors();
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, node.width, node.height);
+      const s = view.dpr * view.scale;
+      ctx.setTransform(s, 0, 0, s, view.dpr * view.ox, view.dpr * view.oy);
+      if (view.ox > 0.5 || view.oy > 0.5) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(0, 0, lw, lh);
+        ctx.clip();
+      }
+      try {
+        if (view.draw) view.draw(ctx, view);
+      } catch (err) {
+        console.error(err);
+      }
+      if (view.ox > 0.5 || view.oy > 0.5) ctx.restore();
+    };
+
+    view.redraw = () => {
+      if (view.pending) return;
+      view.pending = requestAnimationFrame(() => {
+        view.pending = 0;
+        view.paint();
+      });
+    };
+
+    view.toLocal = (evt) => {
+      const r = node.getBoundingClientRect();
+      return {
+        x: (evt.clientX - r.left - view.ox) / view.scale,
+        y: (evt.clientY - r.top - view.oy) / view.scale,
+      };
+    };
+
+    if (typeof ResizeObserver === 'function') {
+      new ResizeObserver(() => view.paint()).observe(node);
+    }
+    views.add(view);
+    view.paint();
+    return view;
+  }
+
+  window.addEventListener('resize', () => {
+    for (const v of views) v.redraw();
+  });
+
+  /* ───────────────────────── Pointer interaction ───────────────────────── */
+
+  /**
+   * Pointer dragging on a canvas view, in logical coordinates.
+   *   CP.drag(view, { hit(p) → target|null, start(p, t), move(p, t), end(p, t), hover(p, t) })
+   * When `hit` is omitted every press starts a drag.
+   */
+  function drag(view, handlers) {
+    const node = view.el;
+    const h = handlers || {};
+    let active = null;
+    node.classList.add('is-draggable');
+
+    const hitAt = (p, e) => (h.hit ? h.hit(p, e) : true);
+
+    node.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0 && e.pointerType === 'mouse') return;
+      // Even a miss must not start a text selection that spills over the slide.
+      if (e.pointerType === 'mouse') e.preventDefault();
+      const p = view.toLocal(e);
+      const target = hitAt(p, e);
+      if (target === null || target === undefined || target === false) return;
+      active = { target, id: e.pointerId };
+      try {
+        node.setPointerCapture(e.pointerId);
+      } catch {
+        /* capture is best effort */
+      }
+      node.style.cursor = 'grabbing';
+      if (h.start) h.start(p, target, e);
+      e.preventDefault();
+    });
+
+    node.addEventListener('pointermove', (e) => {
+      const p = view.toLocal(e);
+      if (active && e.pointerId === active.id) {
+        if (h.move) h.move(p, active.target, e);
+        return;
+      }
+      if (e.pointerType === 'mouse') {
+        const target = h.hit ? h.hit(p, e) : null;
+        node.style.cursor = target !== null && target !== undefined && target !== false ? 'grab' : '';
+        if (h.hover) h.hover(p, target, e);
+      }
+    });
+
+    const finish = (e) => {
+      if (!active || e.pointerId !== active.id) return;
+      const done = active;
+      active = null;
+      node.style.cursor = '';
+      if (h.end) h.end(view.toLocal(e), done.target, e);
+    };
+    node.addEventListener('pointerup', finish);
+    node.addEventListener('pointercancel', finish);
+    node.addEventListener('pointerleave', (e) => {
+      if (!active && e.pointerType === 'mouse' && h.hover) h.hover(null, null, e);
+    });
+    return { get active() { return active ? active.target : null; } };
+  }
+
+  /**
+   * Draggable handles: CP.points(view, [{x, y}, ...], { radius, onChange, constrain }).
+   * Points are mutated in place; `constrain(point, index)` may clamp them.
+   */
+  function points(view, list, options) {
+    const opts = options || {};
+    const radius = opts.radius || 14;
+    let hoverIndex = -1;
+    const api = { points: list, hover: -1, dragging: -1 };
+    drag(view, {
+      hit(p, e) {
+        const touch = e && e.pointerType && e.pointerType !== 'mouse';
+        const r = Math.max(radius, (touch ? 24 : 10) / view.scale);
+        let best = -1;
+        let bestD = r * r;
+        list.forEach((pt, i) => {
+          if (pt.locked) return;
+          const d = (pt.x - p.x) ** 2 + (pt.y - p.y) ** 2;
+          if (d <= bestD) {
+            best = i;
+            bestD = d;
+          }
+        });
+        return best === -1 ? null : best;
+      },
+      start(p, i) {
+        api.dragging = i;
+        view.redraw();
+      },
+      move(p, i) {
+        const pt = list[i];
+        pt.x = clamp(p.x, 0, view.w);
+        pt.y = clamp(p.y, 0, view.h);
+        if (opts.constrain) opts.constrain(pt, i);
+        if (opts.onChange) opts.onChange(pt, i);
+        view.redraw();
+      },
+      end() {
+        api.dragging = -1;
+        view.redraw();
+      },
+      hover(p, i) {
+        const next = i === null || i === undefined ? -1 : i;
+        if (next !== hoverIndex) {
+          hoverIndex = next;
+          api.hover = next;
+          view.redraw();
+        }
+      },
+    });
+    return api;
+  }
+
+  /* ───────────────────────── Animation loops ───────────────────────── */
+
+  const loops = new Set();
+
+  /**
+   * requestAnimationFrame loop that only runs while its slide is visible.
+   *   const loop = CP.loop(view.el, (dt, t) => { ...; view.paint(); });
+   *   loop.stop(); loop.start(); loop.toggle(); loop.reset();
+   * dt is in seconds and clamped to 0.1 s (tab switches, breakpoints).
+   */
+  function loop(anchor, tick, options) {
+    const node = $(anchor);
+    const opts = options || {};
+    const L = {
+      slide: node && node.closest ? node.closest('.slide') : null,
+      tick,
+      wanted: opts.autostart !== false,
+      running: false,
+      raf: 0,
+      last: 0,
+      t: 0,
+      maxDt: opts.maxDt || 0.1,
+    };
+    L.start = () => {
+      L.wanted = true;
+      syncLoop(L);
+      return L;
+    };
+    L.stop = () => {
+      L.wanted = false;
+      syncLoop(L);
+      return L;
+    };
+    L.toggle = () => (L.wanted ? L.stop() : L.start());
+    L.reset = () => {
+      L.t = 0;
+      return L;
+    };
+    loops.add(L);
+    syncLoop(L);
+    return L;
+  }
+
+  function syncLoop(L) {
+    const visible = !doc.hidden && (!L.slide || L.slide.classList.contains('is-active') || !state.ready);
+    const should = L.wanted && visible;
+    if (should && !L.running) {
+      L.running = true;
+      L.last = performance.now();
+      const frame = (now) => {
+        if (!L.running) return;
+        const raw = Math.max(0, (now - L.last) / 1000);
+        L.last = now;
+        const dt = Math.min(raw, L.maxDt);
+        L.t += dt;
+        try {
+          L.tick(dt, L.t, raw);
+        } catch (err) {
+          console.error(err);
+          L.running = false;
+          L.wanted = false;
+          return;
+        }
+        if (L.running) L.raf = requestAnimationFrame(frame);
+      };
+      L.raf = requestAnimationFrame(frame);
+    } else if (!should && L.running) {
+      L.running = false;
+      cancelAnimationFrame(L.raf);
+    }
+  }
+
+  function syncLoops() {
+    for (const L of loops) syncLoop(L);
+  }
+
+  doc.addEventListener('visibilitychange', syncLoops);
+
+  /* ───────────────────────── Form controls ───────────────────────── */
+
+  function decimalsOf(input) {
+    const step = input.getAttribute('step');
+    if (!step || step === 'any') return 2;
+    const dot = step.indexOf('.');
+    return dot === -1 ? 0 : step.length - dot - 1;
+  }
+
+  function outputFor(input) {
+    if (input.id) {
+      const out = doc.querySelector(`output[for~="${CSS.escape(input.id)}"]`);
+      if (out) return out;
+    }
+    const ctl = input.closest('.ctl, label');
+    return ctl ? ctl.querySelector('output') : null;
+  }
+
+  function readValue(input, group) {
+    if (input.type === 'checkbox') return input.checked;
+    if (input.type === 'radio') {
+      const checked = group.find((r) => r.checked);
+      return checked ? checked.value : null;
+    }
+    if (input.type === 'range' || input.type === 'number') return Number(input.value);
+    return input.value;
+  }
+
+  /**
+   * Wire a control (range, number, checkbox, select, or a radio group selector)
+   * to a callback, keeping its <output> in sync.
+   *   CP.bind('#speed', (v) => { speed = v; view.redraw(); }, { format: (v) => v + 'x' });
+   * The callback runs once immediately with the initial value unless
+   * { immediate: false } is passed.
+   */
+  function bind(target, fn, options) {
+    const opts = options || {};
+    const inputs = $$(target);
+    if (inputs.length === 0) throw new Error(`CP.bind: 요소를 찾을 수 없습니다 (${target})`);
+    const isGroup = inputs.every((i) => i.type === 'radio');
+    const update = (source) => {
+      const value = readValue(source, inputs);
+      if (!isGroup) {
+        const out = outputFor(source);
+        if (out) {
+          out.textContent = opts.format
+            ? opts.format(value)
+            : typeof value === 'number'
+              ? value.toFixed(decimalsOf(source))
+              : String(value);
+        }
+      }
+      if (fn) fn(value, source);
+    };
+    for (const input of inputs) {
+      const evt = input.type === 'checkbox' || input.type === 'radio' || input.tagName === 'SELECT' ? 'change' : 'input';
+      input.addEventListener(evt, () => update(input));
+    }
+    if (opts.immediate !== false) update(isGroup ? inputs.find((r) => r.checked) || inputs[0] : inputs[0]);
+    return {
+      inputs,
+      update: () => update(isGroup ? inputs.find((r) => r.checked) || inputs[0] : inputs[0]),
+      /**
+       * Set the control from code (e.g. when a canvas drag changes the same
+       * value) and refresh its <output>. The callback is skipped unless
+       * { notify: true } — the caller usually already applied the value.
+       */
+      set(value, setOpts) {
+        const notify = Boolean(setOpts && setOpts.notify);
+        let source = inputs[0];
+        if (isGroup) {
+          source = inputs.find((r) => r.value === String(value)) || inputs[0];
+          for (const r of inputs) r.checked = r === source;
+        } else if (source.type === 'checkbox') {
+          source.checked = Boolean(value);
+        } else {
+          source.value = String(value);
+        }
+        const keep = fn;
+        if (!notify) fn = null;
+        try {
+          update(source);
+        } finally {
+          fn = keep;
+        }
+      },
+    };
+  }
+
+  /* ───────────────────────── Drawing helpers ───────────────────────── */
+
+  function strokeStyle(ctx, color, width, dash) {
+    ctx.strokeStyle = color || ensureColors().fg;
+    ctx.lineWidth = width || 2;
+    ctx.setLineDash(dash || []);
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+  }
+
+  const draw = {
+    line(ctx, x1, y1, x2, y2, o) {
+      const opt = o || {};
+      ctx.save();
+      strokeStyle(ctx, opt.color, opt.width, opt.dash);
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
+      ctx.restore();
+    },
+    arrow(ctx, x1, y1, x2, y2, o) {
+      const opt = o || {};
+      const head = opt.head || 10;
+      const ang = Math.atan2(y2 - y1, x2 - x1);
+      const len = Math.hypot(x2 - x1, y2 - y1);
+      if (len < 0.5) return;
+      const hl = Math.min(head, len * 0.6);
+      const bx = x2 - Math.cos(ang) * hl * 0.8;
+      const by = y2 - Math.sin(ang) * hl * 0.8;
+      ctx.save();
+      strokeStyle(ctx, opt.color, opt.width, opt.dash);
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(bx, by);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = opt.color || ensureColors().fg;
+      ctx.beginPath();
+      ctx.moveTo(x2, y2);
+      ctx.lineTo(x2 - Math.cos(ang - 0.42) * hl, y2 - Math.sin(ang - 0.42) * hl);
+      ctx.lineTo(x2 - Math.cos(ang + 0.42) * hl, y2 - Math.sin(ang + 0.42) * hl);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    },
+    circle(ctx, x, y, r, o) {
+      const opt = o || {};
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(x, y, Math.max(0, r), 0, TAU);
+      if (opt.fill) {
+        ctx.fillStyle = opt.fill;
+        ctx.fill();
+      }
+      if (opt.stroke) {
+        strokeStyle(ctx, opt.stroke, opt.width, opt.dash);
+        ctx.stroke();
+      }
+      ctx.restore();
+    },
+    dot(ctx, x, y, r, color) {
+      draw.circle(ctx, x, y, r === undefined ? 5 : r, { fill: color || ensureColors().accent });
+    },
+    handle(ctx, x, y, o) {
+      const opt = o || {};
+      const c = ensureColors();
+      const r = opt.r || 8;
+      if (opt.active || opt.hover) draw.circle(ctx, x, y, r + 7, { fill: alpha(opt.color || c.accent, opt.active ? 0.3 : 0.18) });
+      draw.circle(ctx, x, y, r, { fill: opt.color || c.accent, stroke: c.bg, width: 2.5 });
+    },
+    rect(ctx, x, y, w, h, o) {
+      const opt = o || {};
+      ctx.save();
+      ctx.beginPath();
+      if (opt.radius && ctx.roundRect) ctx.roundRect(x, y, w, h, opt.radius);
+      else ctx.rect(x, y, w, h);
+      if (opt.fill) {
+        ctx.fillStyle = opt.fill;
+        ctx.fill();
+      }
+      if (opt.stroke) {
+        strokeStyle(ctx, opt.stroke, opt.width, opt.dash);
+        ctx.stroke();
+      }
+      ctx.restore();
+    },
+    poly(ctx, pts, o) {
+      const opt = o || {};
+      if (!pts || pts.length === 0) return;
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(pts[0].x, pts[0].y);
+      for (let i = 1; i < pts.length; i += 1) ctx.lineTo(pts[i].x, pts[i].y);
+      if (opt.close) ctx.closePath();
+      if (opt.fill) {
+        ctx.fillStyle = opt.fill;
+        ctx.fill();
+      }
+      if (opt.stroke || !opt.fill) {
+        strokeStyle(ctx, opt.stroke || opt.color, opt.width, opt.dash);
+        ctx.stroke();
+      }
+      ctx.restore();
+    },
+    text(ctx, str, x, y, o) {
+      const opt = o || {};
+      const c = ensureColors();
+      ctx.save();
+      ctx.font = font(opt.size || 14, opt.weight || 500, opt.mono ? 'mono' : 'sans');
+      // 코드 글꼴의 합자(!= → ≠, => → ⇒)를 끈다 — 캔버스는 CSS font-variant-ligatures를 따르지 않는다
+      if (opt.mono && 'textRendering' in ctx) ctx.textRendering = 'optimizeSpeed';
+      ctx.textAlign = opt.align || 'left';
+      ctx.textBaseline = opt.baseline || 'middle';
+      const s = String(str);
+      if (opt.bg) {
+        const pad = opt.pad === undefined ? 4 : opt.pad;
+        const m = ctx.measureText(s);
+        const size = opt.size || 14;
+        let left = x;
+        if (ctx.textAlign === 'center') left = x - m.width / 2;
+        else if (ctx.textAlign === 'right' || ctx.textAlign === 'end') left = x - m.width;
+        let top = y - size / 2;
+        if (ctx.textBaseline === 'top') top = y;
+        else if (ctx.textBaseline === 'bottom' || ctx.textBaseline === 'alphabetic') top = y - size;
+        ctx.fillStyle = opt.bg;
+        ctx.beginPath();
+        if (ctx.roundRect) ctx.roundRect(left - pad, top - pad * 0.6, m.width + pad * 2, size + pad * 1.2, 4);
+        else ctx.rect(left - pad, top - pad * 0.6, m.width + pad * 2, size + pad * 1.2);
+        ctx.fill();
+      }
+      ctx.fillStyle = opt.color || c.fg;
+      ctx.fillText(s, x, y);
+      ctx.restore();
+    },
+    grid(ctx, w, h, step, o) {
+      const opt = o || {};
+      const c = ensureColors();
+      const x0 = opt.x0 || 0;
+      const y0 = opt.y0 || 0;
+      ctx.save();
+      ctx.strokeStyle = opt.color || alpha(c.line, 0.9);
+      ctx.lineWidth = opt.width || 1;
+      ctx.beginPath();
+      const startX = x0 - Math.floor(x0 / step) * step;
+      const startY = y0 - Math.floor(y0 / step) * step;
+      for (let x = startX; x <= w + 0.01; x += step) {
+        ctx.moveTo(Math.round(x) + 0.5, 0);
+        ctx.lineTo(Math.round(x) + 0.5, h);
+      }
+      for (let y = startY; y <= h + 0.01; y += step) {
+        ctx.moveTo(0, Math.round(y) + 0.5);
+        ctx.lineTo(w, Math.round(y) + 0.5);
+      }
+      ctx.stroke();
+      ctx.restore();
+    },
+  };
+
+  /* ───────────────────────── Code highlighting ───────────────────────── */
+
+  const KEYWORDS = new Set(
+    (
+      'if else for while do return break continue switch case default new delete true false null undefined this ' +
+      'const let var function class extends implements interface import export from struct enum public private ' +
+      'protected internal static readonly virtual override abstract sealed using namespace typeof instanceof in of ' +
+      'async await yield try catch finally throw sizeof template typename auto inline constexpr uniform varying ' +
+      'attribute out inout layout precision highp mediump lowp discard def elif lambda pass None True False and ' +
+      'or not is with as self local then end nil func fn mut impl pub match loop where foreach get set ref ' +
+      // C#
+      'base delegate event params partial lock checked unchecked fixed unsafe stackalloc nameof operator implicit ' +
+      'explicit extern goto volatile record init required when global add remove'
+    ).split(' '),
+  );
+  const TYPES = new Set(
+    (
+      'int float double bool char byte short long unsigned signed string number boolean void uint ' +
+      'decimal object sbyte ushort ulong nint nuint dynamic ' +
+      'vec2 vec3 vec4 ivec2 ivec3 ivec4 uvec2 bvec2 mat2 mat3 mat4 sampler2D samplerCube float2 float3 float4 ' +
+      'float3x3 float4x4 half half3 half4 u8 u16 u32 u64 i8 i16 i32 i64 f32 f64 usize isize'
+    ).split(' '),
+  );
+
+  /** Label shown in the corner of a code block. */
+  const LANG_LABELS = {
+    csharp: 'C#',
+    cs: 'C#',
+    hlsl: 'HLSL',
+    glsl: 'GLSL',
+    json: 'JSON',
+    js: 'JS',
+    ts: 'TS',
+    text: '',
+    txt: '',
+    plain: '',
+  };
+
+  function tokenize(src, lang) {
+    const hashComments = /^(py|python|gd|gdscript|sh|bash|ruby|yaml)$/.test(lang);
+    const dashComments = lang === 'lua';
+    const cLike = !hashComments && !dashComments;
+    const tokens = [];
+    let i = 0;
+    const push = (type, text) => {
+      const last = tokens[tokens.length - 1];
+      if (last && last.type === type && !type) last.text += text;
+      else tokens.push({ type, text });
+    };
+    const rest = () => src.slice(i);
+    while (i < src.length) {
+      const s = rest();
+      let m;
+      if ((cLike && (m = /^\/\/[^\n]*/.exec(s))) || (hashComments && (m = /^#[^\n]*/.exec(s))) || (dashComments && (m = /^--[^\n]*/.exec(s)))) {
+        push('c', m[0]);
+      } else if (cLike && (m = /^\/\*[\s\S]*?(?:\*\/|$)/.exec(s))) {
+        push('c', m[0]);
+      } else if (cLike && (m = /^#[ \t]*[a-z]+/.exec(s)) && (i === 0 || src[i - 1] === '\n' || /^[ \t]*$/.test(src.slice(src.lastIndexOf('\n', i - 1) + 1, i)))) {
+        push('k', m[0]);
+      } else if ((m = /^(?:\$@|@\$|@)"(?:""|[^"\n])*"?/.exec(s))) {
+        // C# verbatim string: backslashes are literal, "" is an escaped quote
+        push('s', m[0]);
+      } else if ((m = /^\$?(?:"(?:\\.|[^"\\\n])*"?|'(?:\\.|[^'\\\n])*'?|`(?:\\[\s\S]|[^`\\])*`?)/.exec(s))) {
+        // $"..." is a C# interpolated string
+        push('s', m[0]);
+      } else if ((m = /^(?:0[xX][\da-fA-F_]+|0[bB][01_]+|(?:\d[\d_]*\.?\d*|\.\d+)(?:[eE][+-]?\d+)?)[fFuUlLdDmM]?/.exec(s)) && !/[\w$]/.test(src[i - 1] || '')) {
+        push('n', m[0]);
+      } else if ((m = /^[A-Za-z_$][\w$]*/.exec(s))) {
+        const word = m[0];
+        const after = src.slice(i + word.length).match(/^\s*(\(|<[\w\s,]*>\s*\()/);
+        if (KEYWORDS.has(word)) push('k', word);
+        else if (TYPES.has(word)) push('t', word);
+        else if (after) push('f', word);
+        else if (/^[A-Z][a-z0-9]/.test(word) || /^[A-Z]$/.test(word)) push('t', word);
+        else push('', word);
+      } else if ((m = /^[^\w\s"'`/#\-$.]+|^[\s\S]/.exec(s))) {
+        push('', m[0]);
+      }
+      i += m[0].length;
+    }
+    return tokens;
+  }
+
+  function escapeText(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function dedent(text) {
+    const lines = text.replace(/\r\n?/g, '\n').replace(/\t/g, '    ').split('\n');
+    while (lines.length && lines[0].trim() === '') lines.shift();
+    while (lines.length && lines[lines.length - 1].trim() === '') lines.pop();
+    const indents = lines.filter((l) => l.trim()).map((l) => l.match(/^ */)[0].length);
+    const cut = indents.length ? Math.min(...indents) : 0;
+    return lines.map((l) => l.slice(cut)).join('\n');
+  }
+
+  function highlightCode(pre) {
+    if (pre.dataset.cpHighlighted) return;
+    const codeEl = pre.querySelector('code') || pre;
+    const lang = (pre.dataset.lang || '').toLowerCase();
+    let src = dedent(codeEl.textContent);
+    // Inside a .cloze, ⟦answer⟧ markers become input boxes (see initCloze).
+    const blanks = pre.closest('.cloze') ? extractBlanks(src) : [];
+    if (blanks.length) src = blanks.src;
+    const lines = [''];
+    const plain = lang === 'text' || lang === 'txt' || lang === 'plain';
+    const tokens = plain ? [{ type: '', text: src }] : tokenize(src, lang);
+    const emit = (type, text) => {
+      text.split('\n').forEach((part, idx) => {
+        if (idx > 0) lines.push('');
+        if (!part) return;
+        const html = escapeText(part);
+        lines[lines.length - 1] += type ? `<span class="tok-${type}">${html}</span>` : html;
+      });
+    };
+    let pos = 0;
+    let bi = 0;
+    for (const tok of tokens) {
+      const end = pos + tok.text.length;
+      let cur = pos;
+      while (cur < end) {
+        const b = blanks[bi];
+        if (b && cur >= b.start) {
+          // Inside a blank: emit one input at its start, skip the answer text.
+          if (cur === b.start) lines[lines.length - 1] += blankHtml(b);
+          const stop = Math.min(end, b.end);
+          if (stop === b.end) bi += 1;
+          cur = stop;
+        } else {
+          const stop = b && b.start < end ? b.start : end;
+          emit(tok.type, src.slice(cur, stop));
+          cur = stop;
+        }
+      }
+      pos = end;
+    }
+    codeEl.innerHTML = lines.map((l, idx) => `<span class="line" data-line="${idx + 1}">${l || ' '}</span>`).join('');
+    for (const input of codeEl.querySelectorAll('input.cloze__blank')) {
+      clozeAnswers.set(input, blanks[Number(input.dataset.blank)].answers);
+    }
+    pre.dataset.cpHighlighted = 'true';
+    pre.dataset.label = Object.prototype.hasOwnProperty.call(LANG_LABELS, lang) ? LANG_LABELS[lang] : lang.toUpperCase();
+    if (!pre.hasAttribute('tabindex')) pre.tabIndex = 0;
+  }
+
+  function parseLineSpec(spec) {
+    const set = new Set();
+    for (const part of String(spec || '').split(',')) {
+      const m = /^\s*(\d+)\s*(?:-\s*(\d+))?\s*$/.exec(part);
+      if (!m) continue;
+      const a = Number(m[1]);
+      const b = m[2] ? Number(m[2]) : a;
+      for (let n = Math.min(a, b); n <= Math.max(a, b); n += 1) set.add(n);
+    }
+    return set;
+  }
+
+  function highlightEntries(pre) {
+    const spec = pre.getAttribute('data-highlight');
+    return spec ? spec.split('|') : [];
+  }
+
+  function applyHighlight(pre, step) {
+    const entries = highlightEntries(pre);
+    const active = step >= 1 && step <= entries.length ? parseLineSpec(entries[step - 1]) : new Set();
+    let any = false;
+    for (const line of pre.querySelectorAll('.line')) {
+      const on = active.has(Number(line.dataset.line));
+      line.classList.toggle('is-active', on);
+      if (on) any = true;
+    }
+    pre.classList.toggle('has-active', any);
+  }
+
+  /* ───────────────────────── Quizzes ───────────────────────── */
+
+  function initQuiz(quiz) {
+    if (quiz.dataset.cpQuiz) return;
+    quiz.dataset.cpQuiz = 'true';
+    const answer = (quiz.getAttribute('data-answer') || '').trim().toLowerCase();
+    const choices = Array.from(quiz.querySelectorAll('.quiz__choice'));
+    choices.forEach((choice, i) => {
+      if (!choice.dataset.choice) choice.dataset.choice = 'abcdefgh'[i] || String(i + 1);
+      if (choice.tagName === 'BUTTON' && !choice.getAttribute('type')) choice.type = 'button';
+    });
+    let feedback = quiz.querySelector('.quiz__feedback');
+    if (!feedback) {
+      feedback = el('p', { class: 'quiz__feedback', 'aria-live': 'polite' });
+      const explain = quiz.querySelector('.quiz__explain');
+      if (explain) explain.before(feedback);
+      else quiz.append(feedback);
+    }
+    quiz.addEventListener('click', (e) => {
+      const choice = e.target.closest('.quiz__choice');
+      if (!choice || !quiz.contains(choice) || choice.disabled || quiz.classList.contains('is-solved')) return;
+      const value = choice.dataset.choice.toLowerCase();
+      if (value === answer) {
+        choice.classList.add('is-correct');
+        quiz.classList.add('is-solved');
+        for (const c of choices) {
+          c.disabled = true;
+          c.setAttribute('aria-disabled', 'true');
+        }
+        feedback.className = 'quiz__feedback is-correct';
+        feedback.textContent = choice.dataset.why || '정답입니다!';
+        emit('quiz', { quiz, correct: true, choice: value });
+      } else {
+        choice.classList.add('is-wrong');
+        choice.disabled = true;
+        choice.setAttribute('aria-disabled', 'true');
+        feedback.className = 'quiz__feedback is-wrong';
+        feedback.textContent = choice.dataset.why || '아니에요 — 다시 생각해 보세요.';
+        emit('quiz', { quiz, correct: false, choice: value });
+      }
+    });
+  }
+
+  /* ───────────────────────── Cloze (빈칸 채우기) ───────────────────────── */
+
+  /*
+   * <div class="cloze"><pre class="code" data-lang="csharp"><code>
+   *   Player hero = ⟦new⟧ Player("용사", 100);
+   * </code></pre></div>
+   * Each ⟦answer⟧ becomes an input. Alternatives: ⟦answer|alt⟧. Grading is
+   * case-sensitive (C# is) and ignores spacing that C# ignores.
+   */
+  const BLANK_RE = /⟦([^⟦⟧\n]*)⟧/g;
+  const clozeAnswers = new WeakMap(); // input → accepted answers
+
+  /** Strip ⟦…⟧ markers. Returns ranges into the cleaned source (`.src`). */
+  function extractBlanks(text) {
+    const list = [];
+    let src = '';
+    let last = 0;
+    for (const m of text.matchAll(BLANK_RE)) {
+      const answers = m[1].split('|').map((a) => a.trim()).filter(Boolean);
+      src += text.slice(last, m.index);
+      if (answers.length) {
+        list.push({ index: list.length, start: src.length, end: src.length + answers[0].length, answers });
+        src += answers[0];
+      } else {
+        src += m[0]; // empty marker: leave it visible rather than guess
+      }
+      last = m.index + m[0].length;
+    }
+    src += text.slice(last);
+    list.src = src;
+    return list;
+  }
+
+  const WIDE_CHAR = /[ᄀ-ᅟ⺀-꓏가-힣豈-﫿︰-﹏＀-｠￠-￦]/;
+
+  function blankHtml(b) {
+    const width = Array.from(b.answers[0]).reduce((n, ch) => n + (WIDE_CHAR.test(ch) ? 2 : 1), 0);
+    return (
+      `<input class="cloze__blank" type="text" data-blank="${b.index}" aria-label="빈칸 ${b.index + 1}" ` +
+      'autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="next" ' +
+      `style="width:${Math.max(width, 3) + 1.5}ch">`
+    );
+  }
+
+  /** Compare code the way the compiler would: spacing around symbols never matters. */
+  const normalizeCode = (s) =>
+    String(s)
+      .replace(/\s*([^\p{L}\p{N}_\s])\s*/gu, '$1')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+  function initCloze(box) {
+    if (box.dataset.cpCloze) return;
+    const inputs = Array.from(box.querySelectorAll('input.cloze__blank'));
+    if (inputs.length === 0) return;
+    box.dataset.cpCloze = 'true';
+    const button = (text, cls, action) => el('button', { class: `btn btn--sm ${cls}`, type: 'button', 'data-cloze': action, text });
+    const checkBtn = button('채점하기', 'btn--primary', 'check');
+    const revealBtn = button('정답 보기', 'btn--ghost', 'reveal');
+    const resetBtn = button('다시 하기', 'btn--ghost', 'reset');
+    const result = el('span', { class: 'cloze__result', 'aria-live': 'polite' });
+    box.append(el('div', { class: 'cloze__bar' }, [checkBtn, revealBtn, resetBtn, result]));
+
+    const setState = (input, s) => {
+      input.classList.toggle('is-correct', s === 'correct');
+      input.classList.toggle('is-wrong', s === 'wrong');
+      input.classList.toggle('is-revealed', s === 'revealed');
+      if (s === 'wrong') input.setAttribute('aria-invalid', 'true');
+      else input.removeAttribute('aria-invalid');
+    };
+    const isRight = (input) => {
+      const typed = normalizeCode(input.value);
+      return typed !== '' && clozeAnswers.get(input).some((a) => normalizeCode(a) === typed);
+    };
+
+    function check() {
+      let right = 0;
+      for (const input of inputs) {
+        const ok = isRight(input);
+        if (ok) right += 1;
+        setState(input, ok ? 'correct' : 'wrong');
+      }
+      const solved = right === inputs.length;
+      box.classList.toggle('is-solved', solved);
+      result.className = `cloze__result ${solved ? 'is-correct' : 'is-wrong'}`;
+      result.textContent = solved
+        ? `${inputs.length}칸 모두 정답입니다!`
+        : `${inputs.length}칸 중 ${right}칸 정답입니다. 빨간 칸을 고친 뒤 다시 채점해 보세요.`;
+      if (!solved) {
+        const firstWrong = inputs.find((i) => i.classList.contains('is-wrong'));
+        if (firstWrong && box.contains(doc.activeElement)) firstWrong.focus();
+      }
+      emit('cloze', { cloze: box, correct: right, total: inputs.length, solved });
+    }
+
+    checkBtn.addEventListener('click', check);
+    revealBtn.addEventListener('click', () => {
+      for (const input of inputs) {
+        if (isRight(input)) {
+          setState(input, 'correct');
+        } else {
+          input.value = clozeAnswers.get(input)[0];
+          setState(input, 'revealed');
+        }
+      }
+      box.classList.remove('is-solved');
+      result.className = 'cloze__result';
+      result.textContent = '노란 칸이 정답을 채운 곳입니다. “다시 하기”로 지우고 직접 입력해 보세요.';
+    });
+    resetBtn.addEventListener('click', () => {
+      for (const input of inputs) {
+        input.value = '';
+        setState(input, null);
+      }
+      box.classList.remove('is-solved');
+      result.className = 'cloze__result';
+      result.textContent = '';
+    });
+    inputs.forEach((input, i) => {
+      input.addEventListener('input', () => {
+        setState(input, null);
+        box.classList.remove('is-solved');
+      });
+      input.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter' || e.isComposing) return;
+        e.preventDefault();
+        // Enter: next blank, and grade after the last one.
+        if (i + 1 < inputs.length) inputs[i + 1].focus();
+        else check();
+      });
+    });
+  }
+
+  /* ───────────────────────── Deck ───────────────────────── */
+
+  const state = {
+    ready: false,
+    deck: null,
+    slides: [],
+    index: -1,
+    steps: [],
+    maxSteps: [],
+    library: null,
+    ui: {},
+  };
+
+  const ICONS = {
+    prev: '<path d="M15 18l-6-6 6-6"/>',
+    next: '<path d="M9 18l6-6-6-6"/>',
+    toc: '<path d="M9 6h12M9 12h12M9 18h12M4 6h.01M4 12h.01M4 18h.01"/>',
+    moon: '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>',
+    sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+    expand: '<path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M16 21h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>',
+    close: '<path d="M18 6L6 18M6 6l12 12"/>',
+    library: '<path d="M15 18l-6-6 6-6"/>',
+  };
+
+  const svg = (name) => `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">${ICONS[name]}</svg>`;
+
+  function stepNumber(node) {
+    const n = parseInt(node.getAttribute('data-step'), 10);
+    return Number.isFinite(n) && n >= 1 ? n : 1;
+  }
+
+  function countSteps(slide) {
+    let max = parseInt(slide.getAttribute('data-steps'), 10) || 0;
+    for (const node of slide.querySelectorAll('[data-step]')) max = Math.max(max, stepNumber(node));
+    for (const pre of slide.querySelectorAll('pre.code[data-highlight]')) max = Math.max(max, highlightEntries(pre).length);
+    return max;
+  }
+
+  function readLibrary() {
+    const node = doc.getElementById('cp-library');
+    if (!node) return null;
+    try {
+      const data = JSON.parse(node.textContent);
+      if (data && typeof data.href === 'string' && data.concepts && typeof data.concepts === 'object') return data;
+    } catch {
+      /* ignore malformed data */
+    }
+    return null;
+  }
+
+  function linkConceptRefs(scope) {
+    for (const ref of Array.from(scope.querySelectorAll('[data-concept-ref]'))) {
+      if (ref.tagName === 'A') continue;
+      const id = ref.getAttribute('data-concept-ref');
+      if (!state.library) {
+        if (!ref.title) ref.title = '라이브러리에서 볼 수 있는 관련 개념';
+        continue;
+      }
+      const own = (obj) => Boolean(obj) && typeof obj === 'object' && Object.prototype.hasOwnProperty.call(obj, id);
+      const known = own(state.library.concepts) ? state.library.concepts[id] : null;
+      // Published site ("strict"): only concepts on the site are links; scheduled ones point at their hub card.
+      const releaseAt = !known && own(state.library.scheduled) ? new Date(state.library.scheduled[id]) : null;
+      if (!known && state.library.strict && !releaseAt) continue;
+      const a = doc.createElement('a');
+      for (const attr of Array.from(ref.attributes)) a.setAttribute(attr.name, attr.value);
+      a.href = known || `${state.library.href}#concept=${encodeURIComponent(id)}`;
+      if (!known) {
+        a.classList.add('is-planned');
+        a.title = releaseAt && !Number.isNaN(releaseAt.getTime())
+          ? `공개 예정 (${releaseAt.toLocaleString('ko-KR', { dateStyle: 'medium', timeStyle: 'short' })}) — 라이브러리에서 보기`
+          : '아직 준비 중인 개념 — 라이브러리에서 보기';
+      }
+      a.append(...Array.from(ref.childNodes));
+      ref.replaceWith(a);
+    }
+  }
+
+  function buildChrome(deck) {
+    const ui = state.ui;
+    const conceptTitle = deck.getAttribute('data-title') || (state.slides[0] && state.slides[0].getAttribute('data-title')) || doc.title;
+    const categoryTitle = deck.getAttribute('data-category') || '';
+
+    ui.progress = el('div', { class: 'cp-progress', 'aria-hidden': 'true' }, [el('div', { class: 'cp-progress__fill' })]);
+
+    ui.top = el('header', { class: 'cp-topbar' });
+    if (state.library) {
+      ui.lib = el('a', { class: 'cp-lib', href: state.library.href, html: `${svg('library')}<span>라이브러리</span>` });
+      ui.top.append(ui.lib);
+    }
+    const crumb = el('div', { class: 'cp-crumb' });
+    if (categoryTitle) {
+      crumb.append(el('span', { class: 'cp-crumb__cat', text: categoryTitle }), el('span', { class: 'cp-crumb__sep', 'aria-hidden': 'true', text: '/' }));
+    }
+    crumb.append(el('span', { class: 'cp-crumb__title', text: conceptTitle }));
+    ui.top.append(crumb);
+    ui.theme = el('button', { class: 'cp-icon-btn cp-theme', type: 'button' });
+    ui.theme.addEventListener('click', toggleTheme);
+    ui.top.append(ui.theme);
+
+    ui.nav = el('nav', { class: 'cp-nav', 'aria-label': '슬라이드 이동' });
+    const left = el('div', { class: 'cp-nav__group' });
+    ui.tocBtn = el('button', { class: 'cp-icon-btn', type: 'button', 'aria-label': '목차 (T)', title: '목차 (T)', 'aria-haspopup': 'dialog', html: svg('toc') });
+    ui.tocBtn.addEventListener('click', openToc);
+    left.append(ui.tocBtn);
+    if (doc.fullscreenEnabled && root.requestFullscreen) {
+      ui.fsBtn = el('button', { class: 'cp-icon-btn', type: 'button', 'aria-label': '전체 화면 (F)', title: '전체 화면 (F)', html: svg('expand') });
+      ui.fsBtn.addEventListener('click', toggleFullscreen);
+      left.append(ui.fsBtn);
+    }
+    const status = el('div', { class: 'cp-nav__status' });
+    ui.navTitle = el('span', { class: 'cp-nav__title' });
+    ui.count = el('span', { class: 'cp-nav__count' });
+    ui.pips = el('span', { class: 'cp-steps', 'aria-hidden': 'true' });
+    status.append(ui.navTitle, ui.count, ui.pips);
+    const right = el('div', { class: 'cp-nav__group' });
+    ui.prev = el('button', { class: 'cp-icon-btn', type: 'button', 'aria-label': '이전', title: '이전 (←)', html: svg('prev') });
+    ui.next = el('button', { class: 'cp-icon-btn cp-icon-btn--primary', type: 'button', 'aria-label': '다음', title: '다음 (→)', html: svg('next') });
+    ui.prev.addEventListener('click', prev);
+    ui.next.addEventListener('click', next);
+    right.append(ui.prev, ui.next);
+    ui.nav.append(left, status, right);
+
+    ui.toc = el('dialog', { class: 'cp-toc', 'aria-labelledby': 'cp-toc-title' });
+    const head = el('div', { class: 'cp-toc__head' }, [el('h2', { id: 'cp-toc-title', text: '목차' })]);
+    const close = el('button', { class: 'cp-icon-btn', type: 'button', 'aria-label': '닫기', html: svg('close') });
+    close.addEventListener('click', closeToc);
+    head.append(close);
+    ui.tocList = el('ol', { class: 'cp-toc__list' });
+    state.slides.forEach((slide, i) => {
+      const b = el('button', { type: 'button', 'data-index': i, text: slide.getAttribute('data-title') || `슬라이드 ${i + 1}` });
+      b.addEventListener('click', () => {
+        closeToc();
+        go(i, { steps: 0 });
+      });
+      ui.tocList.append(el('li', null, [b]));
+    });
+    ui.toc.append(head, ui.tocList);
+    ui.toc.addEventListener('click', (e) => {
+      if (e.target === ui.toc) closeToc();
+    });
+
+    ui.live = el('div', { class: 'cp-sr-only', 'aria-live': 'polite', 'aria-atomic': 'true' });
+
+    doc.body.prepend(ui.progress, ui.top);
+    doc.body.append(ui.nav, ui.toc, ui.live);
+    updateThemeButton();
+  }
+
+  function updateThemeButton() {
+    const btn = state.ui.theme;
+    if (!btn) return;
+    const dark = effectiveTheme() === 'dark';
+    btn.innerHTML = svg(dark ? 'sun' : 'moon');
+    const label = dark ? '밝은 테마로 전환' : '어두운 테마로 전환';
+    btn.setAttribute('aria-label', label);
+    btn.title = label;
+  }
+
+  function updateChrome() {
+    const ui = state.ui;
+    if (!ui.nav) return;
+    const n = state.slides.length;
+    const i = state.index;
+    const slide = state.slides[i];
+    const max = state.maxSteps[i];
+    const step = state.steps[i];
+    ui.progress.firstChild.style.width = `${(((i + (max ? step / (max + 1) : 0)) + 1) / n) * 100}%`;
+    ui.navTitle.textContent = slide.getAttribute('data-title') || '';
+    ui.count.textContent = `${String(i + 1).padStart(2, '0')} / ${String(n).padStart(2, '0')}`;
+    ui.pips.replaceChildren();
+    if (max > 0) {
+      for (let k = 1; k <= max; k += 1) ui.pips.append(el('span', { class: k <= step ? 'is-on' : '' }));
+    }
+    const pending = step < max;
+    ui.prev.disabled = i === 0 && step === 0;
+    ui.next.disabled = i === n - 1 && !pending;
+    ui.next.classList.toggle('has-steps', pending);
+    ui.next.setAttribute('aria-label', pending ? `다음 단계 보기 (${step + 1}/${max})` : '다음 슬라이드');
+    for (const b of ui.tocList.querySelectorAll('button')) {
+      if (Number(b.dataset.index) === i) b.setAttribute('aria-current', 'step');
+      else b.removeAttribute('aria-current');
+    }
+  }
+
+  function setStep(i, k) {
+    const slide = state.slides[i];
+    const max = state.maxSteps[i];
+    const step = clamp(k, 0, max);
+    const before = state.steps[i];
+    state.steps[i] = step;
+    let newest = null;
+    for (const node of slide.querySelectorAll('[data-step]')) {
+      const s = stepNumber(node);
+      const shown = s <= step;
+      node.classList.toggle('is-shown', shown);
+      node.classList.toggle('is-current', s === step);
+      node.inert = !shown;
+      if (s === step && step > before) newest = newest || node;
+    }
+    for (const pre of slide.querySelectorAll('pre.code[data-highlight]')) {
+      applyHighlight(pre, step);
+      if (step > before) {
+        const line = pre.querySelector('.line.is-active');
+        if (line && !newest) newest = line;
+      }
+    }
+    if (newest && i === state.index) {
+      newest.scrollIntoView({ block: 'nearest', behavior: motionQuery && motionQuery.matches ? 'auto' : 'smooth' });
+    }
+    slide.dispatchEvent(new CustomEvent('cp:step', { detail: { step, max, index: i } }));
+    emit('step', { slide, index: i, step, max });
+    updateChrome();
+  }
+
+  function go(target, opts) {
+    const options = opts || {};
+    const n = state.slides.length;
+    if (!n) return;
+    const i = clamp(Math.trunc(Number(target)) || 0, 0, n - 1);
+    const previous = state.index;
+    const prevSlide = state.slides[previous];
+    const slide = state.slides[i];
+    const focusWasInside = Boolean(prevSlide && prevSlide.contains(doc.activeElement));
+
+    if (i !== previous) {
+      state.slides.forEach((s, k) => {
+        const active = k === i;
+        s.classList.toggle('is-active', active);
+        s.classList.toggle('is-past', k < i);
+        s.inert = !active;
+        s.setAttribute('aria-hidden', active ? 'false' : 'true');
+      });
+      state.index = i;
+      if (previous !== -1 && i > previous) slide.scrollTop = 0;
+      if (prevSlide) prevSlide.dispatchEvent(new CustomEvent('cp:leave', { detail: { index: previous } }));
+    }
+
+    const steps = options.steps === 'all' ? state.maxSteps[i] : Number(options.steps) || 0;
+    setStep(i, steps);
+
+    if (i !== previous) {
+      slide.dispatchEvent(new CustomEvent('cp:enter', { detail: { index: i, previous } }));
+      emit('slide', { slide, index: i, previous });
+      syncLoops();
+      updateHash(i, previous === -1);
+      saveProgress(i);
+      if (state.ui.live) state.ui.live.textContent = `슬라이드 ${i + 1} / ${n}: ${slide.getAttribute('data-title') || ''}`;
+      if (focusWasInside) slide.focus({ preventScroll: true });
+    }
+  }
+
+  function next() {
+    const i = state.index;
+    if (i < 0) return;
+    if (state.steps[i] < state.maxSteps[i]) setStep(i, state.steps[i] + 1);
+    else if (i < state.slides.length - 1) go(i + 1, { steps: 0 });
+  }
+
+  function prev() {
+    const i = state.index;
+    if (i < 0) return;
+    if (state.steps[i] > 0) setStep(i, state.steps[i] - 1);
+    else if (i > 0) go(i - 1, { steps: 'all' });
+  }
+
+  function indexFromHash() {
+    const m = /^#(\d+)$/.exec(window.location.hash);
+    if (!m) return null;
+    const n = Number(m[1]);
+    return n >= 1 && n <= state.slides.length ? n - 1 : null;
+  }
+
+  function updateHash(i, initial) {
+    if (initial && !window.location.hash) return;
+    const hash = `#${i + 1}`;
+    if (window.location.hash === hash) return;
+    try {
+      window.history.replaceState(window.history.state, '', hash);
+    } catch {
+      /* some embedded contexts forbid history access */
+    }
+  }
+
+  function saveProgress(i) {
+    const id = root.getAttribute('data-concept');
+    if (!id) return;
+    let all = {};
+    try {
+      all = JSON.parse(storage.get(PROGRESS_KEY) || '{}');
+    } catch {
+      all = {};
+    }
+    if (!all || typeof all !== 'object' || Array.isArray(all)) all = {};
+    const n = state.slides.length;
+    const before = all[id] && typeof all[id] === 'object' ? all[id] : {};
+    all[id] = {
+      slide: i + 1,
+      total: n,
+      max: Math.max(Number(before.max) || 0, i + 1),
+      done: Boolean(before.done) || i === n - 1,
+      at: Date.now(),
+    };
+    storage.set(PROGRESS_KEY, JSON.stringify(all));
+  }
+
+  function openToc() {
+    const dlg = state.ui.toc;
+    if (!dlg || dlg.open) return;
+    if (typeof dlg.showModal === 'function') dlg.showModal();
+    else dlg.setAttribute('open', '');
+    const current = dlg.querySelector('[aria-current="step"]');
+    if (current) current.focus();
+  }
+
+  function closeToc() {
+    const dlg = state.ui.toc;
+    if (!dlg || !dlg.open) return;
+    if (typeof dlg.close === 'function') dlg.close();
+    else dlg.removeAttribute('open');
+  }
+
+  function toggleFullscreen() {
+    if (!doc.fullscreenEnabled) return;
+    if (doc.fullscreenElement) doc.exitFullscreen().catch(() => {});
+    else root.requestFullscreen().catch(() => {});
+  }
+
+  const KEY_EXEMPT = 'input, textarea, select, [contenteditable=""], [contenteditable="true"], [data-keys]';
+
+  function onKeydown(e) {
+    if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
+    if (state.ui.toc && state.ui.toc.open) return;
+    const t = e.target instanceof Element ? e.target : null;
+    if (t && t.closest(KEY_EXEMPT)) return;
+    const onButton = Boolean(t && t.closest('button, a, summary, [role="button"]'));
+    switch (e.key) {
+      case 'ArrowRight':
+      case 'PageDown':
+        next();
+        break;
+      case ' ':
+      case 'Spacebar':
+        if (onButton) return;
+        if (e.shiftKey) prev();
+        else next();
+        break;
+      case 'ArrowLeft':
+      case 'PageUp':
+        prev();
+        break;
+      case 'Home':
+        go(0, { steps: 0 });
+        break;
+      case 'End':
+        go(state.slides.length - 1, { steps: 0 });
+        break;
+      case 't':
+      case 'T':
+        openToc();
+        break;
+      case 'f':
+      case 'F':
+        toggleFullscreen();
+        break;
+      default:
+        return;
+    }
+    e.preventDefault();
+  }
+
+  const SWIPE_EXEMPT = 'input, textarea, select, canvas, pre, button, a, [data-keys], [data-no-swipe], .table-wrap, .formula';
+
+  function bindSwipe(deck) {
+    let start = null;
+    deck.addEventListener(
+      'touchstart',
+      (e) => {
+        if (e.touches.length !== 1) {
+          start = null;
+          return;
+        }
+        const t = e.target instanceof Element ? e.target : null;
+        if (t && t.closest(SWIPE_EXEMPT)) {
+          start = null;
+          return;
+        }
+        start = { x: e.touches[0].clientX, y: e.touches[0].clientY, at: performance.now() };
+      },
+      { passive: true },
+    );
+    deck.addEventListener(
+      'touchend',
+      (e) => {
+        if (!start || e.changedTouches.length !== 1) return;
+        const dx = e.changedTouches[0].clientX - start.x;
+        const dy = e.changedTouches[0].clientY - start.y;
+        const quick = performance.now() - start.at < 700;
+        start = null;
+        if (!quick || Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+        if (dx < 0) next();
+        else prev();
+      },
+      { passive: true },
+    );
+    deck.addEventListener('touchcancel', () => {
+      start = null;
+    });
+  }
+
+  function setup(deck) {
+    state.deck = deck;
+    state.slides = Array.from(deck.children).filter((node) => node.matches('section.slide'));
+    if (state.slides.length === 0) return;
+    root.classList.add('cp-js');
+    state.library = readLibrary();
+    refreshColors();
+    for (const pre of deck.querySelectorAll('pre.code')) highlightCode(pre);
+    const n = state.slides.length;
+    state.slides.forEach((slide, i) => {
+      slide.setAttribute('role', 'group');
+      slide.setAttribute('aria-roledescription', '슬라이드');
+      slide.setAttribute('aria-label', `${i + 1} / ${n}: ${slide.getAttribute('data-title') || ''}`);
+      slide.tabIndex = -1;
+      state.maxSteps[i] = countSteps(slide);
+      state.steps[i] = 0;
+    });
+    linkConceptRefs(doc.body);
+    for (const quiz of deck.querySelectorAll('.quiz')) initQuiz(quiz);
+    for (const box of deck.querySelectorAll('.cloze')) initCloze(box);
+    buildChrome(deck);
+    doc.addEventListener('keydown', onKeydown);
+    bindSwipe(deck);
+    // Fallback for browsers without `overflow: clip` (see concept.css): the deck itself must never scroll.
+    deck.addEventListener('scroll', () => {
+      if (deck.scrollLeft !== 0 || deck.scrollTop !== 0) {
+        deck.scrollLeft = 0;
+        deck.scrollTop = 0;
+      }
+    });
+    window.addEventListener('hashchange', () => {
+      const i = indexFromHash();
+      if (i !== null && i !== state.index) go(i, { steps: 0 });
+    });
+    state.ready = true;
+    const startAt = indexFromHash();
+    go(startAt === null ? 0 : startAt, { steps: 0 });
+  }
+
+  function init() {
+    if (state.deck) return;
+    const deck = doc.querySelector('main.deck');
+    if (!deck) {
+      root.classList.remove('cp-js');
+      return;
+    }
+    try {
+      setup(deck);
+    } catch (err) {
+      // Fall back to the readable, stacked no-JS layout rather than a blank page.
+      root.classList.remove('cp-js');
+      console.error('[CP] 슬라이드 초기화 실패', err);
+    }
+  }
+
+  /**
+   * Run callbacks when the slide containing `anchor` is entered/left or its
+   * reveal step changes. `enter` runs immediately when it is already active.
+   *   CP.onSlide('#demo', { enter() {}, leave() {}, step(n) {} })
+   */
+  function onSlide(anchor, handlers) {
+    const node = $(anchor);
+    const slide = node ? (node.matches('.slide') ? node : node.closest('.slide')) : null;
+    if (!slide) throw new Error(`CP.onSlide: 슬라이드를 찾을 수 없습니다 (${anchor})`);
+    const h = handlers || {};
+    if (h.enter) slide.addEventListener('cp:enter', (e) => h.enter(e.detail));
+    if (h.leave) slide.addEventListener('cp:leave', (e) => h.leave(e.detail));
+    if (h.step) slide.addEventListener('cp:step', (e) => h.step(e.detail.step, e.detail));
+    if (slide.classList.contains('is-active')) {
+      const i = state.slides.indexOf(slide);
+      if (h.enter) h.enter({ index: i, previous: -1 });
+      if (h.step) h.step(state.steps[i] || 0, { step: state.steps[i] || 0, max: state.maxSteps[i] || 0, index: i });
+    }
+  }
+
+  window.CP = Object.freeze({
+    version: 1,
+    $,
+    $$,
+    el,
+    clamp,
+    lerp,
+    invLerp,
+    remap,
+    TAU,
+    rng,
+    on,
+    onSlide,
+    canvas,
+    drag,
+    points,
+    loop,
+    bind,
+    draw,
+    alpha,
+    mix,
+    font,
+    resolveColor,
+    get colors() {
+      return ensureColors();
+    },
+    get theme() {
+      return effectiveTheme();
+    },
+    setTheme,
+    toggleTheme,
+    get reducedMotion() {
+      return Boolean(motionQuery && motionQuery.matches);
+    },
+    get index() {
+      return state.index;
+    },
+    get count() {
+      return state.slides.length;
+    },
+    step(i) {
+      return state.steps[i === undefined ? state.index : i] || 0;
+    },
+    go: (i, opts) => go(i, opts),
+    next: () => next(),
+    prev: () => prev(),
+    highlight: highlightCode,
+  });
+
+  if (doc.querySelector('main.deck')) init();
+  else doc.addEventListener('DOMContentLoaded', init, { once: true });
+})();
+
+</script><span aria-hidden="true" style="position: absolute; width: 0px; height: 0px; overflow: hidden; visibility: hidden; pointer-events: none; color: var(--viz-6);"></span><nav class="cp-nav" aria-label="슬라이드 이동"><div class="cp-nav__group"><button class="cp-icon-btn" type="button" aria-label="목차 (T)" title="목차 (T)" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6h12M9 12h12M9 18h12M4 6h.01M4 12h.01M4 18h.01"></path></svg></button><button class="cp-icon-btn" type="button" aria-label="전체 화면 (F)" title="전체 화면 (F)"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M16 21h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg></button></div><div class="cp-nav__status"><span class="cp-nav__title">따라 하기 ①: static 카운터</span><span class="cp-nav__count">06 / 12</span><span class="cp-steps" aria-hidden="true"><span class="is-on"></span><span class="is-on"></span><span class="is-on"></span><span class="is-on"></span><span class="is-on"></span></span></div><div class="cp-nav__group"><button class="cp-icon-btn" type="button" aria-label="이전" title="이전 (←)"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 18l-6-6 6-6"></path></svg></button><button class="cp-icon-btn cp-icon-btn--primary" type="button" aria-label="다음 슬라이드" title="다음 (→)"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 18l6-6-6-6"></path></svg></button></div></nav><dialog class="cp-toc" aria-labelledby="cp-toc-title"><div class="cp-toc__head"><h2 id="cp-toc-title">목차</h2><button class="cp-icon-btn" type="button" aria-label="닫기"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M18 6L6 18M6 6l12 12"></path></svg></button></div><ol class="cp-toc__list"><li><button type="button" data-index="0">정적 멤버와 객체 복사</button></li><li><button type="button" data-index="1">객체마다 따로인 것과 함께인 것</button></li><li><button type="button" data-index="2">static 필드: 클래스에 하나</button></li><li><button type="button" data-index="3">static 메서드와 this</button></li><li><button type="button" data-index="4">정적 클래스</button></li><li><button type="button" data-index="5" aria-current="step">따라 하기 ①: static 카운터</button></li><li><button type="button" data-index="6">참조 복사 · 얕은 복사 · 깊은 복사</button></li><li><button type="button" data-index="7">따라 하기 ②: 얕은 복사와 깊은 복사</button></li><li><button type="button" data-index="8">흔한 함정</button></li><li><button type="button" data-index="9">확인 문제</button></li><li><button type="button" data-index="10">실습과제: 빈칸 채우기</button></li><li><button type="button" data-index="11">정리</button></li></ol></dialog><div class="cp-sr-only" aria-live="polite" aria-atomic="true">슬라이드 6 / 12: 따라 하기 ①: static 카운터</div>
+  <script>
+    (() => {
+      const { draw, alpha } = CP;
+      const C = CP.colors; // 테마가 바뀌면 같은 객체의 값이 갱신된다
+
+      /** 머리글 + 필드 줄로 된 카드. 높이를 돌려준다 */
+      function objectCard(ctx, x, y, w, title, rows, o = {}) {
+        const line = o.lineH || 22;
+        const h = 34 + rows.length * line + 8;
+        const tint = o.color || C.accent;
+        draw.rect(ctx, x, y, w, h, { radius: 10, fill: C.elev, stroke: o.selected ? tint : alpha(tint, 0.6), width: o.selected ? 3 : 1.5, dash: o.dashed ? [6, 5] : null });
+        draw.rect(ctx, x + 1, y + 1, w - 2, 30, { radius: [9, 9, 0, 0], fill: alpha(tint, 0.16) });
+        draw.text(ctx, title, x + 12, y + 16, { mono: true, size: o.titleSize || 15, weight: 700 });
+        rows.forEach((r, i) => {
+          const row = typeof r === 'string' ? { text: r } : r;
+          draw.text(ctx, row.text, x + 12, y + 34 + i * line + line / 2, { mono: true, size: o.size || 14, color: row.color || C.muted, weight: row.bold ? 700 : 500 });
+        });
+        return h;
+      }
+
+      /** 최근 n줄만 보여 주는 출력 창 */
+      function logger(selector, max, placeholder) {
+        const out = CP.$(selector);
+        let lines = [];
+        const show = () => { out.textContent = lines.length ? lines.join('\n') : placeholder; };
+        show();
+        return {
+          push(...ls) { lines = lines.concat(ls).slice(-max); show(); },
+          set(ls) { lines = ls.slice(-max); show(); },
+          clear() { lines = []; show(); },
+        };
+      }
+
+      /* ── 3. static 필드 ── */
+      {
+        const CAST = [['goblin', '고블린', 30], ['slime', '슬라임', 20], ['orc', '오크', 50], ['bat', '박쥐', 10], ['wolf', '늑대', 40], ['skeleton', '해골', 25]];
+        let n = 0, mode = 'static';
+        const log = logger('#count-log', 4, '// new Enemy(…)를 눌러 보세요');
+        const CW = 120;
+        const slot = (i) => [250 + (i % 3) * 128, 30 + Math.floor(i / 3) * 150];
+        const view = CP.canvas('#count', (ctx, v) => {
+          // 클래스 상자
+          const bx = 16, by = 30, bw = 200, bh = 170;
+          draw.rect(ctx, bx, by, bw, bh, { radius: 10, fill: alpha(C.accent, 0.08), stroke: C.accent, width: 2, dash: [7, 5] });
+          draw.text(ctx, 'class Enemy', bx + 14, by + 22, { mono: true, size: 16, weight: 700, color: C.accentInk });
+          const sy = by + 60;
+          if (mode === 'static') {
+            draw.text(ctx, 'static int Count', bx + 14, sy, { mono: true, size: 14, color: C.muted });
+            draw.rect(ctx, bx + 14, sy + 16, bw - 28, 56, { radius: 8, fill: alpha(C.accent, 0.18), stroke: C.accent, width: 2 });
+            draw.text(ctx, String(n), bx + bw / 2, sy + 44, { mono: true, size: 30, weight: 800, align: 'center' });
+          } else {
+            draw.text(ctx, '(Count 없음)', bx + 14, sy, { size: 14, color: C.subtle });
+            draw.text(ctx, '객체마다 따로 있다 →', bx + 14, sy + 30, { size: 14, color: C.subtle });
+          }
+          draw.text(ctx, '클래스: 하나뿐', bx + bw / 2, by + bh + 18, { size: 14, color: C.subtle, align: 'center' });
+          const rowsOf = (i) => {
+            const rows = [`Name ${CAST[i][1]}`, `Hp ${CAST[i][2]}`];
+            if (mode === 'instance') rows.push({ text: 'Count 1', color: C.warn, bold: true });
+            return rows;
+          };
+          if (mode === 'static') {
+            for (let i = 0; i < n; i++) {
+              const [x, y] = slot(i);
+              draw.line(ctx, x + 10, y + 20, bx + bw - 14, sy + 44, { color: alpha(C.accent, 0.4), width: 1.5, dash: [4, 4] });
+            }
+          }
+          for (let i = 0; i < n; i++) {
+            const [x, y] = slot(i);
+            objectCard(ctx, x, y, CW, CAST[i][0], rowsOf(i), { size: 13, titleSize: 14, lineH: 22 });
+          }
+          if (n === 0) draw.text(ctx, '아직 객체가 없다 — 그래도 static Count는 있다', 440, 180, { size: 14, color: C.subtle, align: 'center' });
+        });
+        function report() {
+          if (n === 0) return log.clear();
+          if (mode === 'static') log.set([`Console.WriteLine(Enemy.Count);`, `> ${n}`]);
+          else log.set([`Console.WriteLine(${CAST[n - 1][0]}.Count);`, `> 1   // 객체마다 자기 Count를 0에서 1로 올렸을 뿐`]);
+        }
+        CP.bind('input[name="count-mode"]', (val) => { mode = val; report(); view.redraw(); });
+        CP.$('#count-new').addEventListener('click', () => {
+          if (n >= CAST.length) {
+            log.push('// 이 그림에서는 6마리까지 — “처음으로”를 누르세요');
+            return;
+          }
+          n += 1;
+          report();
+          view.redraw();
+        });
+        CP.$('#count-reset').addEventListener('click', () => { n = 0; report(); view.redraw(); });
+      }
+
+      /* ── 4. static 메서드 규칙 ── */
+      {
+        let where = 'inst', what = 'Hp';
+        const box = CP.$('#sm-result');
+        const STATIC = new Set(['Count', 'PrintCount()']);
+        const PLACE = {
+          inst: { label: '인스턴스 메서드 TakeDamage 안', prefix: '' },
+          static: { label: 'static 메서드 PrintCount 안', prefix: '' },
+          type: { label: '클래스 밖, 클래스 이름으로', prefix: 'Enemy.' },
+          obj: { label: '클래스 밖, 객체로', prefix: 'goblin.' },
+        };
+        function judge() {
+          const isStatic = STATIC.has(what);
+          if (where === 'inst') return { ok: true, why: isStatic ? 'static 멤버는 클래스 안 어디서나 이름만으로 쓸 수 있습니다.' : '인스턴스 메서드에는 this(이 객체)가 있어서 Hp는 this.Hp와 같습니다.' };
+          if (where === 'static') return isStatic
+            ? { ok: true, why: 'static 메서드 안에서 static 멤버는 이름만으로 쓸 수 있습니다.' }
+            : { ok: false, code: 'CS0120', why: '인스턴스 멤버를 쓰려면 객체 참조가 필요합니다. static 메서드에는 this가 없어서 “어느 적의” 것인지 모릅니다.' };
+          if (where === 'type') return isStatic
+            ? { ok: true, why: 'static 멤버는 클래스 이름으로 씁니다.' }
+            : { ok: false, code: 'CS0120', why: '클래스 이름만으로는 어느 객체의 멤버인지 알 수 없습니다. goblin.처럼 객체로 써야 합니다.' };
+          return isStatic
+            ? { ok: false, code: 'CS0176', why: 'static 멤버는 객체(인스턴스 참조)로 쓸 수 없습니다. Enemy.처럼 클래스 이름으로 써야 합니다.' }
+            : { ok: true, why: '인스턴스 멤버는 객체로 씁니다. goblin의 것입니다.' };
+        }
+        function render() {
+          const r = judge();
+          box.className = `sim-result ${r.ok ? 'is-ok' : 'is-err'}`;
+          box.replaceChildren(
+            CP.el('p', { class: 'sim-result__head', text: r.ok ? '✓ 컴파일됨' : `✗ 컴파일 오류 ${r.code}` }),
+            CP.el('p', { class: 'sim-result__body', text: `// ${PLACE[where].label}\n${PLACE[where].prefix}${what}` }),
+            CP.el('p', { class: 'sim-result__note', text: r.why }),
+          );
+        }
+        CP.bind('input[name="sm-where"]', (v) => { where = v; render(); });
+        CP.bind('input[name="sm-what"]', (v) => { what = v; render(); });
+      }
+
+      /* ── 7. 복사의 세 단계 ── */
+      {
+        let mode = 'assign';
+        let objs, lists, bObj, touched;
+        const log = logger('#copy-log', 6, '');
+        const CODE = { assign: 'Enemy b = a;', shallow: 'Enemy b = a.ShallowCopy();', deep: 'Enemy b = a.DeepCopy();' };
+        let actions = [];
+        function reset() {
+          lists = [['동전']];
+          objs = [{ hp: 30, list: 0 }];
+          if (mode === 'assign') bObj = 0;
+          else if (mode === 'shallow') { objs.push({ hp: 30, list: 0 }); bObj = 1; }
+          else { lists.push(['동전']); objs.push({ hp: 30, list: 1 }); bObj = 1; }
+          touched = { obj: -1, list: -1 };
+          actions = [];
+          report();
+        }
+        const aAffected = () => touched.obj === 0 || touched.list === objs[0].list;
+        function report() {
+          const a = objs[0];
+          const lines = [CODE[mode], ...actions, `// a.Hp = ${a.hp}, a.Loot = [${lists[a.list].join(', ')}]`];
+          if (actions.length) lines.push(aAffected() ? '// ← b를 바꿨는데 a도 바뀌었다!' : '// ← a는 그대로');
+          log.set(lines);
+        }
+        const OX = 180, OW = 200, LX = 440, LW = 180;
+        const objY = (i) => (i === 0 ? 30 : 214);
+        reset(); // CP.canvas는 만들자마자 그리므로 모델을 먼저 만든다
+        const view = CP.canvas('#copy', (ctx, v) => {
+          // 변수
+          const vars = [['a', 52], ['b', mode === 'assign' ? 132 : 240]];
+          for (const [name, vy] of vars) {
+            draw.rect(ctx, 16, vy, 90, 44, { radius: 8, fill: C.elev, stroke: C.lineStrong, width: 1.5 });
+            draw.text(ctx, name, 40, vy + 22, { mono: true, size: 20, weight: 800 });
+            draw.dot(ctx, 88, vy + 22, 5, C.accent);
+          }
+          // 객체
+          const cardH = [];
+          objs.forEach((o, i) => {
+            const y = objY(i);
+            const hit = touched.obj === i;
+            cardH[i] = objectCard(ctx, OX, y, OW, 'Enemy', [
+              'Name = "고블린"',
+              { text: `Hp = ${o.hp}`, color: hit ? (i === 0 ? C.bad : C.good) : C.muted, bold: hit },
+              'Loot = ●',
+            ], { size: 14, lineH: 26, selected: hit, color: hit && i === 0 ? C.bad : C.accent });
+          });
+          // 리스트
+          lists.forEach((items, k) => {
+            const y = objY(k);
+            const hit = touched.list === k;
+            const shared = objs.filter((o) => o.list === k).length > 1;
+            objectCard(ctx, LX, y, LW, 'List<string>', items.map((s) => `"${s}"`), { size: 14, lineH: 24, color: hit && objs[0].list === k ? C.bad : C.viz[1], selected: hit });
+            if (shared) draw.text(ctx, '두 객체가 공유', LX + LW / 2, y - 12, { size: 13, weight: 700, color: C.warn, align: 'center' });
+          });
+          // 화살표: 변수 → 객체
+          draw.arrow(ctx, 94, 74, OX - 4, objY(0) + 40, { color: C.accent, width: 2.5, head: 11 });
+          const bY = mode === 'assign' ? 154 : 262;
+          draw.arrow(ctx, 94, bY, OX - 4, objY(bObj) + 40 + (mode === 'assign' ? 26 : 0), { color: C.accent, width: 2.5, head: 11 });
+          // 화살표: Loot → 리스트
+          objs.forEach((o, i) => {
+            const y = objY(i) + 34 + 2 * 26 + 13;
+            const ty = objY(o.list) + 46;
+            draw.arrow(ctx, OX + OW - 36, y, LX - 4, ty, { color: C.viz[1], width: 2, head: 10 });
+          });
+          // a에게 보이는가
+          if (touched.obj >= 0 || touched.list >= 0) {
+            const bad = aAffected();
+            draw.text(ctx, bad ? 'a에서도 바뀜!' : 'a는 그대로', OX + OW / 2, v.h - 14, { size: 15, weight: 800, color: bad ? C.bad : C.good, align: 'center', bg: alpha(C.sunken, 0.85) });
+          }
+          if (mode === 'assign') draw.text(ctx, '객체는 하나뿐', OX + OW / 2, objY(0) + cardH[0] + 20, { size: 14, color: C.subtle, align: 'center' });
+        });
+        CP.bind('input[name="copy-mode"]', (val) => { mode = val; reset(); view.redraw(); });
+        CP.$('#copy-hit').addEventListener('click', () => {
+          objs[bObj].hp -= 10;
+          touched.obj = bObj;
+          actions.push('b.Hp -= 10;');
+          report();
+          view.redraw();
+        });
+        CP.$('#copy-add').addEventListener('click', () => {
+          const k = objs[bObj].list;
+          if (lists[k].length >= 4) {
+            actions.push('// 이 그림에서는 4개까지');
+          } else {
+            lists[k].push('보석');
+            touched.list = k;
+            actions.push('b.Loot.Add("보석");');
+          }
+          report();
+          view.redraw();
+        });
+        CP.$('#copy-reset').addEventListener('click', () => { reset(); view.redraw(); });
+      }
+
+      /* ── 9. 흔한 함정 ── */
+      {
+        const pits = CP.$$('[data-pit]');
+        CP.bind('input[name="pit"]', (v) => {
+          for (const p of pits) p.hidden = p.dataset.pit !== v;
+        });
+      }
+    })();
+  </script>
+
+
+</body></html>

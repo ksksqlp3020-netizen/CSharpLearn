@@ -1,0 +1,17 @@
+C:\DEV_ISB\Gameprogram\CSharpLearn\src\Learn\bin\Debug\net10.0\Learn.exe
+C:\DEV_ISB\Gameprogram\CSharpLearn\src\Learn\bin\Debug\net10.0\Learn.deps.json
+C:\DEV_ISB\Gameprogram\CSharpLearn\src\Learn\bin\Debug\net10.0\Learn.runtimeconfig.json
+C:\DEV_ISB\Gameprogram\CSharpLearn\src\Learn\bin\Debug\net10.0\Learn.runtimeconfig.dev.json
+C:\DEV_ISB\Gameprogram\CSharpLearn\src\Learn\bin\Debug\net10.0\Learn.dll
+C:\DEV_ISB\Gameprogram\CSharpLearn\src\Learn\bin\Debug\net10.0\Learn.pdb
+C:\DEV_ISB\Gameprogram\CSharpLearn\src\Learn\obj\Debug\net10.0\Learn.GeneratedMSBuildEditorConfig.editorconfig
+C:\DEV_ISB\Gameprogram\CSharpLearn\src\Learn\obj\Debug\net10.0\Learn.AssemblyInfoInputs.cache
+C:\DEV_ISB\Gameprogram\CSharpLearn\src\Learn\obj\Debug\net10.0\Learn.AssemblyInfo.cs
+C:\DEV_ISB\Gameprogram\CSharpLearn\src\Learn\obj\Debug\net10.0\Learn.csproj.CoreCompileInputs.cache
+C:\DEV_ISB\Gameprogram\CSharpLearn\src\Learn\obj\Debug\net10.0\Learn.sourcelink.json
+C:\DEV_ISB\Gameprogram\CSharpLearn\src\Learn\obj\Debug\net10.0\Learn.dll
+C:\DEV_ISB\Gameprogram\CSharpLearn\src\Learn\obj\Debug\net10.0\refint\Learn.dll
+C:\DEV_ISB\Gameprogram\CSharpLearn\src\Learn\obj\Debug\net10.0\Learn.pdb
+C:\DEV_ISB\Gameprogram\CSharpLearn\src\Learn\obj\Debug\net10.0\Learn.genruntimeconfig.cache
+C:\DEV_ISB\Gameprogram\CSharpLearn\src\Learn\obj\Debug\net10.0\ref\Learn.dll
+C:\DEV_ISB\Gameprogram\CSharpLearn\src\Learn\obj\Debug\net10.0\Learn.csproj.Up2Date
