@@ -3,20 +3,8 @@
   "WorkspaceRootPath": "C:\\DEV_ISB\\Gameprogram\\CSharpLearn\\Basic\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{CD82AAEA-4EA2-237F-3283-E63065207682}|Basic.csproj|c:\\dev_isb\\gameprogram\\csharplearn\\basic\\\uAC8C\uC784\uC5D0\uC11C\uC0AC\uC6A9\uD558\uB294\uD074\uB798\uC2A4.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CD82AAEA-4EA2-237F-3283-E63065207682}|Basic.csproj|solutionrelative:\uAC8C\uC784\uC5D0\uC11C\uC0AC\uC6A9\uD558\uB294\uD074\uB798\uC2A4.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CD82AAEA-4EA2-237F-3283-E63065207682}|Basic.csproj|c:\\dev_isb\\gameprogram\\csharplearn\\basic\\\uD074\uB798\uC2A4\uAC8C\uC784\uBA54\uC778.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CD82AAEA-4EA2-237F-3283-E63065207682}|Basic.csproj|solutionrelative:\uD074\uB798\uC2A4\uAC8C\uC784\uBA54\uC778.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CD82AAEA-4EA2-237F-3283-E63065207682}|Basic.csproj|c:\\dev_isb\\gameprogram\\csharplearn\\basic\\\uD074\uB798\uC2A4\uBA54\uC778.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CD82AAEA-4EA2-237F-3283-E63065207682}|Basic.csproj|solutionrelative:\uD074\uB798\uC2A4\uBA54\uC778.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CD82AAEA-4EA2-237F-3283-E63065207682}|Basic.csproj|c:\\dev_isb\\gameprogram\\csharplearn\\basic\\\uBA54\uC778.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CD82AAEA-4EA2-237F-3283-E63065207682}|Basic.csproj|solutionrelative:\uBA54\uC778.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{CD82AAEA-4EA2-237F-3283-E63065207682}|Basic.csproj|c:\\dev_isb\\gameprogram\\csharplearn\\basic\\progarm.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CD82AAEA-4EA2-237F-3283-E63065207682}|Basic.csproj|solutionrelative:progarm.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -26,61 +14,19 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 0,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "\uD074\uB798\uC2A4\uAC8C\uC784\uBA54\uC778.cs",
-              "DocumentMoniker": "C:\\DEV_ISB\\Gameprogram\\CSharpLearn\\Basic\\\uD074\uB798\uC2A4\uAC8C\uC784\uBA54\uC778.cs",
-              "RelativeDocumentMoniker": "\uD074\uB798\uC2A4\uAC8C\uC784\uBA54\uC778.cs",
-              "ToolTip": "C:\\DEV_ISB\\Gameprogram\\CSharpLearn\\Basic\\\uD074\uB798\uC2A4\uAC8C\uC784\uBA54\uC778.cs",
-              "RelativeToolTip": "\uD074\uB798\uC2A4\uAC8C\uC784\uBA54\uC778.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAADAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-11-23T12:41:29.169Z",
-              "EditorCaption": "",
-              "OwnerCaption": "%2"
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "\uAC8C\uC784\uC5D0\uC11C\uC0AC\uC6A9\uD558\uB294\uD074\uB798\uC2A4.cs",
-              "DocumentMoniker": "C:\\DEV_ISB\\Gameprogram\\CSharpLearn\\Basic\\\uAC8C\uC784\uC5D0\uC11C\uC0AC\uC6A9\uD558\uB294\uD074\uB798\uC2A4.cs",
-              "RelativeDocumentMoniker": "\uAC8C\uC784\uC5D0\uC11C\uC0AC\uC6A9\uD558\uB294\uD074\uB798\uC2A4.cs",
-              "ToolTip": "C:\\DEV_ISB\\Gameprogram\\CSharpLearn\\Basic\\\uAC8C\uC784\uC5D0\uC11C\uC0AC\uC6A9\uD558\uB294\uD074\uB798\uC2A4.cs",
-              "RelativeToolTip": "\uAC8C\uC784\uC5D0\uC11C\uC0AC\uC6A9\uD558\uB294\uD074\uB798\uC2A4.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAAAAAAAAAAAA==",
+              "Title": "progarm.cs",
+              "DocumentMoniker": "C:\\DEV_ISB\\Gameprogram\\CSharpLearn\\Basic\\progarm.cs",
+              "RelativeDocumentMoniker": "progarm.cs",
+              "ToolTip": "C:\\DEV_ISB\\Gameprogram\\CSharpLearn\\Basic\\progarm.cs",
+              "RelativeToolTip": "progarm.cs",
+              "ViewState": "AgIAANcBAAAAAAAAAAAAAIcBAAAbAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-11-23T12:14:43.361Z",
-              "EditorCaption": "",
-              "OwnerCaption": "%2"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "\uD074\uB798\uC2A4\uBA54\uC778.cs",
-              "DocumentMoniker": "C:\\DEV_ISB\\Gameprogram\\CSharpLearn\\Basic\\\uD074\uB798\uC2A4\uBA54\uC778.cs",
-              "RelativeDocumentMoniker": "\uD074\uB798\uC2A4\uBA54\uC778.cs",
-              "ToolTip": "C:\\DEV_ISB\\Gameprogram\\CSharpLearn\\Basic\\\uD074\uB798\uC2A4\uBA54\uC778.cs",
-              "RelativeToolTip": "\uD074\uB798\uC2A4\uBA54\uC778.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABcAAAAbAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-11-23T11:41:04.663Z",
-              "EditorCaption": "",
-              "OwnerCaption": "%2"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "\uBA54\uC778.cs",
-              "DocumentMoniker": "C:\\DEV_ISB\\Gameprogram\\CSharpLearn\\Basic\\\uBA54\uC778.cs",
-              "RelativeDocumentMoniker": "\uBA54\uC778.cs",
-              "ToolTip": "C:\\DEV_ISB\\Gameprogram\\CSharpLearn\\Basic\\\uBA54\uC778.cs",
-              "RelativeToolTip": "\uBA54\uC778.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-11-23T11:11:52.052Z",
+              "WhenOpened": "2026-11-25T11:49:08.561Z",
               "EditorCaption": "",
               "OwnerCaption": "%2"
             }
