@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="만들면서클래스배우기.cs" />
     <Compile Remove="메인.cs" />
     <Compile Remove="배열.cs" />
     <Compile Remove="상수와열거형.cs" />

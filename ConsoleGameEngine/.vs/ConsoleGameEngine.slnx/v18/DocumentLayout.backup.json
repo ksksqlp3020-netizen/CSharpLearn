@@ -1,0 +1,56 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\DEV_ISB\\Gameprogram\\CSharpLearn\\ConsoleGameEngine\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{DECF5D27-4148-4B34-B1F3-725DDCA80312}|ConsoleGame\\ConsoleGame.csproj|c:\\dev_isb\\gameprogram\\csharplearn\\consolegameengine\\consolegame\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{DECF5D27-4148-4B34-B1F3-725DDCA80312}|ConsoleGame\\ConsoleGame.csproj|solutionrelative:consolegame\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{DECF5D27-4148-4B34-B1F3-725DDCA80312}|ConsoleGame\\ConsoleGame.csproj|c:\\dev_isb\\gameprogram\\csharplearn\\consolegameengine\\consolegame\\mygameengine2.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{DECF5D27-4148-4B34-B1F3-725DDCA80312}|ConsoleGame\\ConsoleGame.csproj|solutionrelative:consolegame\\mygameengine2.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "MyGameEngine2.cs",
+              "DocumentMoniker": "C:\\DEV_ISB\\Gameprogram\\CSharpLearn\\ConsoleGameEngine\\ConsoleGame\\MyGameEngine2.cs",
+              "RelativeDocumentMoniker": "ConsoleGame\\MyGameEngine2.cs",
+              "ToolTip": "C:\\DEV_ISB\\Gameprogram\\CSharpLearn\\ConsoleGameEngine\\ConsoleGame\\MyGameEngine2.cs",
+              "RelativeToolTip": "ConsoleGame\\MyGameEngine2.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAuAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-26T12:36:49.95Z",
+              "EditorCaption": "",
+              "OwnerCaption": "%2"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\DEV_ISB\\Gameprogram\\CSharpLearn\\ConsoleGameEngine\\ConsoleGame\\Program.cs",
+              "RelativeDocumentMoniker": "ConsoleGame\\Program.cs",
+              "ToolTip": "C:\\DEV_ISB\\Gameprogram\\CSharpLearn\\ConsoleGameEngine\\ConsoleGame\\Program.cs",
+              "RelativeToolTip": "ConsoleGame\\Program.cs",
+              "ViewState": "AgIAAE0AAAAAAAAAAAAcwCgAAAAeAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-26T12:04:48.63Z",
+              "EditorCaption": "",
+              "OwnerCaption": "%2"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
