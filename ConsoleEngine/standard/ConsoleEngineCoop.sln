@@ -1,0 +1,65 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 18
+VisualStudioVersion = 18.12.12412.261 stable
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyGame", "MyGame\MyGame.csproj", "{509777C3-5255-4480-BB15-70EC715D17DA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DodgeGame.cs", "DodgeGame\DodgeGame.cs.csproj", "{5874E9B1-63A0-472C-9A05-6D16190C7D2F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleEngine", "..\..\standard\ConsoleEngine\ConsoleEngine.csproj", "{6781CFFE-9B37-F851-2EC8-9649FCCE985A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{509777C3-5255-4480-BB15-70EC715D17DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{509777C3-5255-4480-BB15-70EC715D17DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{509777C3-5255-4480-BB15-70EC715D17DA}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{509777C3-5255-4480-BB15-70EC715D17DA}.Debug|x64.Build.0 = Debug|Any CPU
+		{509777C3-5255-4480-BB15-70EC715D17DA}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{509777C3-5255-4480-BB15-70EC715D17DA}.Debug|x86.Build.0 = Debug|Any CPU
+		{509777C3-5255-4480-BB15-70EC715D17DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{509777C3-5255-4480-BB15-70EC715D17DA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{509777C3-5255-4480-BB15-70EC715D17DA}.Release|x64.ActiveCfg = Release|Any CPU
+		{509777C3-5255-4480-BB15-70EC715D17DA}.Release|x64.Build.0 = Release|Any CPU
+		{509777C3-5255-4480-BB15-70EC715D17DA}.Release|x86.ActiveCfg = Release|Any CPU
+		{509777C3-5255-4480-BB15-70EC715D17DA}.Release|x86.Build.0 = Release|Any CPU
+		{5874E9B1-63A0-472C-9A05-6D16190C7D2F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5874E9B1-63A0-472C-9A05-6D16190C7D2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5874E9B1-63A0-472C-9A05-6D16190C7D2F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{5874E9B1-63A0-472C-9A05-6D16190C7D2F}.Debug|x64.Build.0 = Debug|Any CPU
+		{5874E9B1-63A0-472C-9A05-6D16190C7D2F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5874E9B1-63A0-472C-9A05-6D16190C7D2F}.Debug|x86.Build.0 = Debug|Any CPU
+		{5874E9B1-63A0-472C-9A05-6D16190C7D2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5874E9B1-63A0-472C-9A05-6D16190C7D2F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5874E9B1-63A0-472C-9A05-6D16190C7D2F}.Release|x64.ActiveCfg = Release|Any CPU
+		{5874E9B1-63A0-472C-9A05-6D16190C7D2F}.Release|x64.Build.0 = Release|Any CPU
+		{5874E9B1-63A0-472C-9A05-6D16190C7D2F}.Release|x86.ActiveCfg = Release|Any CPU
+		{5874E9B1-63A0-472C-9A05-6D16190C7D2F}.Release|x86.Build.0 = Release|Any CPU
+		{6781CFFE-9B37-F851-2EC8-9649FCCE985A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6781CFFE-9B37-F851-2EC8-9649FCCE985A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6781CFFE-9B37-F851-2EC8-9649FCCE985A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6781CFFE-9B37-F851-2EC8-9649FCCE985A}.Debug|x64.Build.0 = Debug|Any CPU
+		{6781CFFE-9B37-F851-2EC8-9649FCCE985A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6781CFFE-9B37-F851-2EC8-9649FCCE985A}.Debug|x86.Build.0 = Debug|Any CPU
+		{6781CFFE-9B37-F851-2EC8-9649FCCE985A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6781CFFE-9B37-F851-2EC8-9649FCCE985A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6781CFFE-9B37-F851-2EC8-9649FCCE985A}.Release|x64.ActiveCfg = Release|Any CPU
+		{6781CFFE-9B37-F851-2EC8-9649FCCE985A}.Release|x64.Build.0 = Release|Any CPU
+		{6781CFFE-9B37-F851-2EC8-9649FCCE985A}.Release|x86.ActiveCfg = Release|Any CPU
+		{6781CFFE-9B37-F851-2EC8-9649FCCE985A}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5764F87C-3137-45FC-BBC3-F2AC273D9161}
+	EndGlobalSection
+EndGlobal
